@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">pamflet</string>
+    <string name="editor_code">Code</string>
+    <string name="editor_preview">Preview</string>
 </resources>

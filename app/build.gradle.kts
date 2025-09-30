@@ -42,7 +42,7 @@ android {
 }
 
 dependencies {
-    implementation(files("libs/pamflet-dsl-1.0.jar"))
+    implementation(files("libs/pamflet-kotlin-0.1.0.jar"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

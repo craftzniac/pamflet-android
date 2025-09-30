@@ -1,16 +1,17 @@
 package com.example.pamflet
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
@@ -32,8 +33,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import pamflet.parser.Element
 import pamflet.parser.Parser
 
@@ -50,24 +54,28 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun App() {
-    val content = remember {mutableStateOf("hello world")}
+    val content = remember { mutableStateOf("hello world") }
     Scaffold { paddingValues ->
         Box(
             modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(paddingValues),
         ) {
 
 
             Column(
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(16.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 val selectedMS = remember { mutableIntStateOf(0) }
-                val options = listOf("Code", "Preview")
-                SingleChoiceSegmentedButtonRow() {
+                val options = listOf(
+                    stringResource(R.string.editor_code),
+                    stringResource(R.string.editor_preview)
+                )
+                SingleChoiceSegmentedButtonRow {
                     options.forEachIndexed { index, label ->
                         SegmentedButton(
                             selected = selectedMS.intValue == index,
@@ -81,7 +89,7 @@ fun App() {
                     }
                 }
 
-                Box() {
+                Box {
                     when (selectedMS.intValue) {
                         0 -> Editor(content)
                         1 -> Flashcard(content)
@@ -99,8 +107,8 @@ fun App() {
 fun Editor(content: MutableState<String>) {
     Box(
         modifier = Modifier
-            .wrapContentSize()
-            .padding(16.dp), contentAlignment = Alignment.Center
+            .wrapContentSize(),
+        contentAlignment = Alignment.Center
     ) {
         OutlinedCard(
             border = BorderStroke(width = 1.dp, color = Color.Gray),
@@ -110,6 +118,15 @@ fun Editor(content: MutableState<String>) {
         ) {
 
             BasicTextField(
+                textStyle = TextStyle(fontSize = 20.sp),
+                decorationBox = { innerTextField ->
+                    Box {
+                        if (content.value.isEmpty()) {
+                            Text("Write something ...", fontSize = 20.sp, color = Color.Gray)
+                        }
+                        innerTextField()
+                    }
+                },
                 modifier = Modifier
                     .fillMaxSize()
                     .border(width = 0.dp, color = Color.Transparent)
@@ -127,8 +144,8 @@ fun Editor(content: MutableState<String>) {
 fun Flashcard(content: MutableState<String>) {
     Box(
         modifier = Modifier
-            .wrapContentSize()
-            .padding(16.dp), contentAlignment = Alignment.Center
+            .wrapContentSize(),
+        contentAlignment = Alignment.Center
     ) {
         Card(
             modifier = Modifier
@@ -142,9 +159,20 @@ fun Flashcard(content: MutableState<String>) {
 }
 
 
+const val TAG = "Composable::PText"
+
 @Composable
 fun PText(el: Element.Text) {
-    Text(text = el.content)
+    val color = parseColor(el.color, Color.Black)
+    Log.d(TAG, "color: $color")
+
+    Text(
+        modifier = Modifier.fillMaxWidth(),
+        text = el.content,
+        color = color,
+        fontSize = FontSize.parse(el.fontSize, default = FontSize.Base),
+        textAlign = pamfletTextAlignToJetpackComposeTextAlign(el.textAlign)
+    )
 }
 
 @Composable
@@ -154,15 +182,14 @@ fun Renderer(inputchars: String) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
-        ,
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         elements.forEach { element ->
             when (element) {
                 is Element.Text -> PText(element)
-                else -> { }
+                else -> {}
             }
         }
     }

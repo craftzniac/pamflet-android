@@ -34,12 +34,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import pamflet.parser.Element
 import pamflet.parser.Parser
+import pamflet.testStrings
+import pamflet.tokenizer.Tokenizer
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +62,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun App() {
-    val content = remember { mutableStateOf("hello world") }
+    val content = remember { mutableStateOf(testStrings[5]) }
     Scaffold { paddingValues ->
         Box(
             modifier = Modifier
@@ -176,8 +184,35 @@ fun PText(el: Element.Text) {
 }
 
 @Composable
+fun PLink(el: Element.Link) {
+    Text(
+        text = buildAnnotatedString {
+            withLink(
+                LinkAnnotation.Url(
+                    url = el.href,
+                    styles = TextLinkStyles(
+                        style = SpanStyle(
+                            color = parseColor(el.color, default = Color.Blue),
+                            textDecoration = TextDecoration.Underline,
+                            fontSize = FontSize.parse(el.fontSize, default = FontSize.Base)
+                        )
+                    )
+                )
+            ) {
+                append(el.linkText)
+            }
+        }
+    )
+}
+
+@Composable
 fun Renderer(inputchars: String) {
-    val elements = Parser(inputchars).parse()
+    val tag = "Composable::Renderer"
+    val elements = remember {
+        val tokens = Tokenizer(inputchars).tokenize()
+        Log.d(tag, "\nTokens: ${tokens.toString()}")
+        Parser(inputchars).parse()
+    }
 
     Column(
         modifier = Modifier
@@ -189,6 +224,7 @@ fun Renderer(inputchars: String) {
         elements.forEach { element ->
             when (element) {
                 is Element.Text -> PText(element)
+                is Element.Link -> PLink(element)
                 else -> {}
             }
         }

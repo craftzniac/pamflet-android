@@ -1,6 +1,3 @@
-import org.gradle.kotlin.dsl.flatDir
-import org.gradle.kotlin.dsl.repositories
-
 pluginManagement {
     repositories {
         google {
@@ -19,10 +16,6 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-
-        flatDir{
-            dirs("app/libs")   // look into app/libs
-        }
     }
 }
 

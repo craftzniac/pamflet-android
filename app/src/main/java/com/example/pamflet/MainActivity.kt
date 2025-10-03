@@ -1,53 +1,32 @@
 package com.example.pamflet
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material3.Card
-import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.LinkAnnotation
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextLinkStyles
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import pamflet.parser.Element
-import pamflet.parser.Parser
-import pamflet.testStrings
-import pamflet.tokenizer.Tokenizer
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,15 +41,14 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun App() {
-    val content = remember { mutableStateOf(testStrings[5]) }
+    val selectedCardMutState =  remember { mutableStateOf(cards[1]) }
+
     Scaffold { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
         ) {
-
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -83,6 +61,7 @@ fun App() {
                     stringResource(R.string.editor_code),
                     stringResource(R.string.editor_preview)
                 )
+                var isFlipped by remember {mutableStateOf(false)}
                 SingleChoiceSegmentedButtonRow {
                     options.forEachIndexed { index, label ->
                         SegmentedButton(
@@ -99,144 +78,22 @@ fun App() {
 
                 Box {
                     when (selectedMS.intValue) {
-                        0 -> Editor(content)
-                        1 -> Flashcard(content)
+                        0 -> EditorCard(selectedCardMutState, isFlipped)
+                        1 -> FlashcardCard(selectedCardMutState.value, isFlipped)
                         else -> throw Exception("")
                     }
                 }
-            }
 
-
-        }
-    }
-}
-
-@Composable
-fun Editor(content: MutableState<String>) {
-    Box(
-        modifier = Modifier
-            .wrapContentSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        OutlinedCard(
-            border = BorderStroke(width = 1.dp, color = Color.Gray),
-            modifier = Modifier
-                .sizeIn(maxWidth = 350.dp, maxHeight = 400.dp)
-                .fillMaxSize()
-        ) {
-
-            BasicTextField(
-                textStyle = TextStyle(fontSize = 20.sp),
-                decorationBox = { innerTextField ->
-                    Box {
-                        if (content.value.isEmpty()) {
-                            Text("Write something ...", fontSize = 20.sp, color = Color.Gray)
-                        }
-                        innerTextField()
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxSize()
-                    .border(width = 0.dp, color = Color.Transparent)
-                    .padding(16.dp),
-                value = content.value,
-                onValueChange = { newValue ->
-                    content.value = newValue
+                Button (onClick = { isFlipped = !isFlipped }){
+                    Text("Flip")
                 }
-            )
-        }
-    }
-}
-
-@Composable
-fun Flashcard(content: MutableState<String>) {
-    Box(
-        modifier = Modifier
-            .wrapContentSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Card(
-            modifier = Modifier
-                .widthIn(max = 350.dp)
-                .heightIn(max = 400.dp)
-                .fillMaxSize()
-        ) {
-            Renderer(content.value)
-        }
-    }
-}
-
-
-const val TAG = "Composable::PText"
-
-@Composable
-fun PText(el: Element.Text) {
-    val color = parseColor(el.color, Color.Black)
-    Log.d(TAG, "color: $color")
-
-    Text(
-        modifier = Modifier.fillMaxWidth(),
-        text = el.content,
-        color = color,
-        fontSize = FontSize.parse(el.fontSize, default = FontSize.Base),
-        textAlign = pamfletTextAlignToJetpackComposeTextAlign(el.textAlign)
-    )
-}
-
-@Composable
-fun PLink(el: Element.Link) {
-    Text(
-        text = buildAnnotatedString {
-            withLink(
-                LinkAnnotation.Url(
-                    url = el.href,
-                    styles = TextLinkStyles(
-                        style = SpanStyle(
-                            color = parseColor(el.color, default = Color.Blue),
-                            textDecoration = TextDecoration.Underline,
-                            fontSize = FontSize.parse(el.fontSize, default = FontSize.Base)
-                        )
-                    )
-                )
-            ) {
-                append(el.linkText)
-            }
-        }
-    )
-}
-
-@Composable
-fun Renderer(inputchars: String) {
-    val tag = "Composable::Renderer"
-    val elements = remember {
-        val tokens = Tokenizer(inputchars).tokenize()
-        Log.d(tag, "\nTokens: ${tokens.toString()}")
-        Parser(inputchars).parse()
-    }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        elements.forEach { element ->
-            when (element) {
-                is Element.Text -> PText(element)
-                is Element.Link -> PLink(element)
-                else -> {}
             }
         }
     }
 }
 
 
-@Preview(
-    showSystemUi = true,
-    showBackground = true,
-
-    )
+@Preview( showSystemUi = true, showBackground = true)
 @Composable
 fun PamfletPreview() {
     App()

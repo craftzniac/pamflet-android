@@ -10,9 +10,14 @@ data class Flashcard(
 )
 
 val cards = listOf(
-    Flashcard(id = generateId(), front = testStrings[0], back = testStrings[1]),
-    Flashcard(id = generateId(), front = testStrings[2], back = testStrings[3]),
-    Flashcard(id = generateId(), front = testStrings[4], back = testStrings[5]),
-    Flashcard(id = generateId(), front = testStrings[6], back = testStrings[7]),
-    Flashcard(id = generateId(), front = testStrings[8], back = ""),
+    Flashcard(id = generateId(), front = testStrings[0], back = testStrings[1]),    // 0
+    Flashcard(id = generateId(), front = testStrings[2], back = testStrings[3]),    // 1
+    Flashcard(id = generateId(), front = testStrings[4], back = testStrings[5]),    // 2
+    Flashcard(id = generateId(), front = testStrings[6], back = testStrings[7]),    // 3
+    Flashcard(id = generateId(), front = testStrings[0], back = testStrings[8]),    // 4
+    Flashcard(
+        id = generateId(),
+        front = "Name 3 planets in our solar system\n.color: steelblue\n.fontSize: 2xl",
+        back = "- Mars\n- Jupiter\n- Venus\n.color: rebeccapurple\n.fontSize: xl"
+    ),                                                                              // 5
 )

@@ -127,7 +127,7 @@ fun Editor(
     cardFace: CardFace
 ) {
     BasicTextField(
-        textStyle = TextStyle(fontSize = 20.sp),
+        textStyle = TextStyle(fontSize = FontSize.Lg),
         keyboardOptions = KeyboardOptions(
             capitalization = KeyboardCapitalization.None,
             autoCorrectEnabled = false,

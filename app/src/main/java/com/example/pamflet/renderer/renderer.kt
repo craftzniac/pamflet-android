@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.sp
 import com.example.pamflet.CardFace
 import com.example.pamflet.renderer.components.PLink
 import com.example.pamflet.renderer.components.PList
+import com.example.pamflet.renderer.components.PMultichoice
 import com.example.pamflet.renderer.components.PText
 import pamflet.parser.Element
 import pamflet.parser.Parser
@@ -54,6 +55,7 @@ fun Renderer(modifier: Modifier = Modifier, content: String, cardFace: CardFace)
                         is Element.Text -> PText(element)
                         is Element.Link -> PLink(element)
                         is Element.List -> PList(element)
+                        is Element.Multichoice -> PMultichoice(element)
                         else -> {}
                     }
                 }

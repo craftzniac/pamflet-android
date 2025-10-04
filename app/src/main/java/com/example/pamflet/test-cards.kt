@@ -20,4 +20,9 @@ val cards = listOf(
         front = "Name 3 planets in our solar system\n.color: steelblue\n.fontSize: 2xl",
         back = "- Mars\n- Jupiter\n- Venus\n.color: rebeccapurple\n.fontSize: xl"
     ),                                                                              // 5
+    Flashcard(
+        id = generateId(),
+        front = "Which is an African country?\n- ghana\n- canada\n- malaysia\n- singapore\n.correct: 0",
+        back = ""
+    ),                                                                              // 6
 )

@@ -68,8 +68,8 @@ fun FlippableCard(
                     CardDefaults.outlinedCardElevation()
                 } else CardDefaults.cardElevation(),
                 colors = if (isOutlinedCard) {
-                    CardDefaults.outlinedCardColors()
-                } else CardDefaults.cardColors(),
+                    CardDefaults.outlinedCardColors().copy(containerColor = Color.White)
+                } else CardDefaults.cardColors().copy(containerColor = Color(0xFFEFEFEF)),
                 modifier = modifier.then(
                     Modifier
                         .sizeIn(maxWidth = 350.dp, maxHeight = 400.dp)

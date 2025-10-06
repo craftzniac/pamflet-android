@@ -25,4 +25,9 @@ val cards = listOf(
         front = "Which is an African country?\n- ghana\n- canada\n- malaysia\n- singapore\n.correct: 0",
         back = ""
     ),                                                                              // 6
+    Flashcard(
+        id = generateId(),
+        front = "Which of these are African country?\n- ghana\n- botswana\n- malaysia\n- singapore\n.correct: 0, 1",
+        back = ""                                                                   // 7
+    )
 )

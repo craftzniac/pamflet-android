@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun App() {
-    val selectedCardMutState =  remember { mutableStateOf(cards[6]) }
+    val selectedCardMutState =  remember { mutableStateOf(cards[7]) }
 
     Scaffold { paddingValues ->
         Box(

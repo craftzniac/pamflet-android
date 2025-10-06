@@ -42,7 +42,7 @@ android {
 }
 
 dependencies {
-    implementation("io.github.craftzniac:pamflet-dsl:0.1.3")
+    implementation("io.github.craftzniac:pamflet-dsl:0.1.4")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

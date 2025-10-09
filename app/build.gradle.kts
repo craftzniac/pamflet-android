@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    kotlin("plugin.serialization") version "2.0.21"
 }
 
 android {
@@ -42,7 +43,6 @@ android {
 }
 
 dependencies {
-    implementation("io.github.craftzniac:pamflet-dsl:0.1.4")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -60,4 +60,13 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    // pamflet-dsl parser
+    implementation("io.github.craftzniac:pamflet-dsl:0.1.4")
+    // Jetpack Compose integration
+    implementation(libs.androidx.navigation.compose)
+    // Testing Navigation
+    androidTestImplementation(libs.androidx.navigation.testing)
+    // JSON serialization library, works with the Kotlin serialization plugin
+    implementation(libs.kotlinx.serialization.json)
 }

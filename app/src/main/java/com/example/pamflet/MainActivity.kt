@@ -29,6 +29,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.createGraph
+import kotlinx.serialization.Serializable
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,60 +48,26 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun App() {
-    val selectedCardMutState =  remember { mutableStateOf(cards[7]) }
-
     Scaffold { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = Color.White)
-                .padding(paddingValues),
+                .padding(paddingValues)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                val selectedMS = remember { mutableIntStateOf(0) }
-                val options = listOf(
-                    stringResource(R.string.editor_code),
-                    stringResource(R.string.editor_preview)
-                )
-                var isFlipped by remember {mutableStateOf(false)}
-                SingleChoiceSegmentedButtonRow {
-                    options.forEachIndexed { index, label ->
-                        SegmentedButton(
-                            selected = selectedMS.intValue == index,
-                            label = { Text(label) },
-                            onClick = { selectedMS.intValue = index },
-                            shape = SegmentedButtonDefaults.itemShape(
-                                index = index,
-                                count = options.size
-                            )
-                        )
-                    }
-                }
-
-                Box {
-                    when (selectedMS.intValue) {
-                        0 -> EditorCard(selectedCardMutState, isFlipped)
-                        1 -> FlashcardCard(selectedCardMutState.value, isFlipped)
-                        else -> throw Exception("")
-                    }
-                }
-
-                Button (onClick = { isFlipped = !isFlipped }){
-                    Text("Flip")
+            val navController = rememberNavController()
+            val navGraph = remember(navController) {
+                navController.createGraph(startDestination = NavDestination.Home) {
+                    composable<NavDestination.Home> { HomeScreen() }
                 }
             }
+            Text("hello")
+            NavHost(navController = navController, graph = navGraph)
         }
     }
 }
 
 
-@Preview( showSystemUi = true, showBackground = true)
+@Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun PamfletPreview() {
     App()

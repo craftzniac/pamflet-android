@@ -25,7 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun HomeScreen(){
+fun EditorPreviewTestScreen(){
     val selectedCardMutState =  remember { mutableStateOf(cards[7]) }
     Box(
         modifier = Modifier

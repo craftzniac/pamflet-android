@@ -3,6 +3,7 @@ package com.example.pamflet
 import pamflet.parser.generateId
 import pamflet.testStrings
 
+
 data class Flashcard(
     val id: String,
     var front: String,
@@ -29,5 +30,35 @@ val cards = listOf(
         id = generateId(),
         front = "Which of these are African country?\n- ghana\n- botswana\n- malaysia\n- singapore\n.correct: 0, 1",
         back = ""                                                                   // 7
+    )
+)
+
+data class Deck(
+    val id: String,
+    val name: String,
+    val cards: List<Flashcard>
+)
+
+val decks: List<Deck> = listOf(
+    Deck(
+        id = generateId(),
+        name = "language design fundamentals",
+        cards = cards
+    ),
+    Deck(
+        id = generateId(),
+        name = "Geography",
+        cards = listOf(
+            Flashcard(
+                id = generateId(),
+                front = "Name 3 planets in our solar system\n.color: steelblue\n.fontSize: 2xl",
+                back = "- Mars\n- Jupiter\n- Venus\n.color: rebeccapurple\n.fontSize: xl"
+            ),                                                                              // 5
+            Flashcard(
+                id = generateId(),
+                front = "Which is an African country?\n- ghana\n- canada\n- malaysia\n- singapore\n.correct: 0",
+                back = ""
+            ),                                                                              // 6
+        )
     )
 )

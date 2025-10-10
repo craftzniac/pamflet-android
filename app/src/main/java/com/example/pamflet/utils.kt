@@ -1,11 +1,32 @@
 package com.example.pamflet
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 
+
+data class CardStackItem(
+    val offset: Offset,
+    val backgroundColor: Color,
+)
+
+val cardStackItems = listOf(
+    CardStackItem(
+        offset = Offset(-60f, 30f),
+        backgroundColor = Color(0xFFEDBCA2)
+    ),
+    CardStackItem(
+        offset = Offset(0f, 0f),
+        backgroundColor = Color(0xFF92967A)
+    ),
+    CardStackItem(
+        offset = Offset(60f, 70f),
+        backgroundColor = Color(0xFFF68080)
+    ),
+)
 
 // get color from a string
 fun parseColor(str: String, default: Color = Color.Black): Color {

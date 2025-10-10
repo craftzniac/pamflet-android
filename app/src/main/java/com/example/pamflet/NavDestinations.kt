@@ -4,6 +4,14 @@ import kotlinx.serialization.Serializable
 
 sealed class NavDestination{
     @Serializable
-    data object Home: NavDestination()
+    data object EditorPreviewTest: NavDestination()
+
+    @Serializable
+    data object Decks: NavDestination()
+
+    @Serializable
+    data class CardsSlide(
+        val deckIds: List<String>
+    ): NavDestination()
 }
 

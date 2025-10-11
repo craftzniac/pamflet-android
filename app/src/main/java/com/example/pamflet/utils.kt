@@ -11,22 +11,32 @@ import androidx.core.graphics.toColorInt
 data class CardStackItem(
     val offset: Offset,
     val backgroundColor: Color,
+    val rotation: Float
 )
 
 val cardStackItems = listOf(
     CardStackItem(
-        offset = Offset(-60f, 30f),
-        backgroundColor = Color(0xFFEDBCA2)
+        offset = Offset(-60f, 0f),
+        backgroundColor = Color(0xFFEDBCA2),
+        rotation = -20F
     ),
     CardStackItem(
         offset = Offset(0f, 0f),
-        backgroundColor = Color(0xFF92967A)
+        backgroundColor = Color(0xFF92967A),
+        rotation = -5F
     ),
     CardStackItem(
-        offset = Offset(60f, 70f),
-        backgroundColor = Color(0xFFF68080)
+        offset = Offset(60f, 0f),
+        backgroundColor = Color(0xFFF68080),
+        rotation = 10F
     ),
+    CardStackItem(
+        offset= Offset(80f, 0f),
+        backgroundColor = Color(0xFFB1B79F),
+        rotation = 20F
+    )
 )
+
 
 // get color from a string
 fun parseColor(str: String, default: Color = Color.Black): Color {

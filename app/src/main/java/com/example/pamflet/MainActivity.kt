@@ -54,7 +54,9 @@ fun App() {
                     composable<NavDestination.EditorPreviewTest> { EditorPreviewTestScreen() }
                     composable<NavDestination.CardsSlide> { backStackEntry ->
                         val cardsSlide: NavDestination.CardsSlide = backStackEntry.toRoute()
-                        CardsSlideScreen(cardsSlide)
+                        CardsSlideScreen(cardsSlide, onNavigateBack = {
+                            navController.popBackStack()
+                        })
                     }
                 }
             }

@@ -26,6 +26,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,6 +39,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -142,7 +145,7 @@ fun DecksScreen(
                                 }
                             ) {
                                 Column(
-                                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                                    verticalArrangement = Arrangement.SpaceBetween,
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     modifier = Modifier
                                         .fillMaxSize()
@@ -155,11 +158,12 @@ fun DecksScreen(
                                             .width(200.dp)
                                     ) {
                                         cardStackItems.forEachIndexed { index, cardStackItem ->
-                                            Box(
+                                            Card(
+                                                colors = CardDefaults.cardColors(containerColor = cardStackItem.backgroundColor),
                                                 modifier = Modifier
                                                     .size(150.dp, 200.dp)
                                                     .background(
-                                                        color = cardStackItem.backgroundColor,
+                                                        color = Color.Transparent, // not applied because of the colors property
                                                         shape = RoundedCornerShape(12.dp)
                                                     )
                                                     .offset {
@@ -168,10 +172,22 @@ fun DecksScreen(
                                                             y = cardStackItem.offset.y.roundToInt()
                                                         )
                                                     }
+                                                    .graphicsLayer(
+                                                        rotationZ = cardStackItem.rotation,
+                                                        transformOrigin = TransformOrigin(
+                                                            pivotFractionX = 0.5f,
+                                                            pivotFractionY = 0.5f
+                                                        )
+                                                    )
                                                     .zIndex(index.toFloat()),
-                                            )
+                                            ) {}
                                         }
                                     }
+                                    Spacer(
+                                        modifier = Modifier
+                                            .height(4.dp)
+                                            .fillMaxWidth()
+                                    )
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.spacedBy(20.dp),

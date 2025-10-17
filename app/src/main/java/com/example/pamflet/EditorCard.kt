@@ -72,7 +72,7 @@ fun FlippableCard(
                 } else CardDefaults.cardColors().copy(containerColor = Color(0xFFEFEFEF)),
                 modifier = modifier.then(
                     Modifier
-                        .sizeIn(maxWidth = 350.dp, maxHeight = 400.dp)
+                        .sizeIn(maxWidth = 350.dp, maxHeight = 450.dp)
                         .fillMaxSize()
                         .graphicsLayer {
                             rotationY = animatedFlip

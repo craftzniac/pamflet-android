@@ -4,16 +4,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,6 +42,12 @@ fun CardsSlideScreen(
     onNavigateBack: () -> Unit
 ) {
     val deckIds = cardsSlide.deckIds
+    val decknames = decks.map { it.name }
+    val cards = decks[0].cards
+    val selectedCardMutState = remember { mutableStateOf(cards[0]) }
+    val isFlippedMutState = remember { mutableStateOf(false) }
+    val pagerState = rememberPagerState(pageCount = { cards.size })
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -52,11 +57,6 @@ fun CardsSlideScreen(
                         modifier = Modifier.fillMaxHeight(),
                         verticalArrangement = Arrangement.Center
                     ) {
-                        val decknames = listOf(
-                            "geography",
-                            "fundamentals of programming in C",
-                            "riscv assembly: memory unit"
-                        )
                         Text(
                             "Card Slide",
                             color = Color.Black,
@@ -99,61 +99,34 @@ fun CardsSlideScreen(
         }
     ) { paddingValues ->
         Box(
-            modifier = Modifier.padding(paddingValues).fillMaxSize(),
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
-            val deck = decks[0]
-            val selectedCardMutState = remember { mutableStateOf(deck.cards.get(0)) }
-            val isFlippedMutState = remember { mutableStateOf(false) }
-
             Column(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
             ) {
-                Column {
-                    FlashcardCard(
-                        card = selectedCardMutState.value,
-                        isFlipped = isFlippedMutState.value
-                    )
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    HorizontalPager(
+                        state = pagerState,
+                        pageSpacing = 8.dp,
+                        contentPadding = PaddingValues(horizontal = 20.dp)
+                    ) { page ->
+                        FlashcardCard(
+                            card = cards[page],
+                            isFlipped = isFlippedMutState.value
+                        )
+                    }
                     Button(
                         modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
                         onClick = { isFlippedMutState.value = !isFlippedMutState.value }) {
                         Text("flip")
                     }
                 }
-                Spacer(
-                    modifier = Modifier
-                        .height(8.dp)
-                        .fillMaxWidth()
-                )
-                CardSwipeButtons()
             }
 
-        }
-    }
-}
-
-
-@Composable
-fun CardSwipeButtons() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .widthIn(max = 200.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        IconButton(onClick = {}) {
-            Icon(
-                painter = painterResource(R.drawable.arrow_left),
-                contentDescription = "arrow left icon"
-            )
-        }
-        Spacer(modifier = Modifier.width(8.dp))
-        IconButton(onClick = {}) {
-            Icon(
-                painter = painterResource(R.drawable.arrow_right),
-                contentDescription = "arrow left icon"
-            )
         }
     }
 }

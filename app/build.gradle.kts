@@ -6,13 +6,13 @@ plugins {
 }
 
 android {
-    namespace = "com.example.pamflet"
+    namespace = "com.pamflet"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.example.pamflet"
+        applicationId = "com.pamflet"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

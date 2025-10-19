@@ -2,31 +2,60 @@ package com.pamflet
 
 import kotlinx.serialization.Serializable
 
-sealed class NavDestination {
+interface Routable {
+    val serialName: String
+}
+
+@Serializable
+sealed class NavDestination : Routable {
     @Serializable
-    data object EditorPreviewTest : NavDestination()
+    data object EditorPreviewTest : NavDestination() {
+        override val serialName: String
+            get() = serializer().descriptor.serialName
+    }
 
     @Serializable
-    data object Decks : NavDestination()
+    data object Decks : NavDestination() {
+        override val serialName: String
+            get() = serializer().descriptor.serialName
+    }
 
     @Serializable
     data class CardsSlide(
         val deckIds: List<String>
-    ) : NavDestination()
+    ) : NavDestination() {
+        override val serialName: String
+            get() = serializer().descriptor.serialName
+    }
 
     @Serializable
-    data object CardsSlideSetup : NavDestination()
+    data object CardsSlideSetup : NavDestination() {
+        override val serialName: String
+            get() = serializer().descriptor.serialName
+    }
 
     @Serializable
-    data object Login : NavDestination()
+    data object Login : NavDestination() {
+        override val serialName: String
+            get() = serializer().descriptor.serialName
+    }
 
     @Serializable
-    data object Signup : NavDestination()
+    data object Signup : NavDestination() {
+        override val serialName: String
+            get() = serializer().descriptor.serialName
+    }
 
     @Serializable
-    data object ManageDecks: NavDestination()
+    data object ManageDecks : NavDestination() {
+        override val serialName: String
+            get() = serializer().descriptor.serialName
+    }
 
     @Serializable
-    data object Profile: NavDestination()
+    data object Profile : NavDestination(){
+        override val serialName: String
+            get() = serializer().descriptor.serialName
+    }
 }
 

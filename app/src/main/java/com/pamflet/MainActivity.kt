@@ -1,6 +1,7 @@
 package com.pamflet
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -12,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import androidx.navigation.toRoute
@@ -46,7 +48,8 @@ fun App() {
                 .fillMaxSize()
         ) {
             val navController = rememberNavController()
-
+            val currentSelectedRoute =
+                navController.currentBackStackEntryAsState().value?.destination?.route
             val onNavigateToProfileScreen = {
                 navController.navigate(route = NavDestination.Profile)
             }
@@ -63,7 +66,8 @@ fun App() {
                 BottomNavBar(
                     onNavigateToCardsSlideSetupScreen,
                     onNavigateToManageDecksScreen,
-                    onNavigateToProfileScreen
+                    onNavigateToProfileScreen,
+                    currentSelectedRoute
                 )
             }
 

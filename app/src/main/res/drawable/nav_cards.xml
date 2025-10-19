@@ -8,7 +8,7 @@
         android:fillColor="#F3EAF9"/>
     <path
         android:pathData="M10.961,2.436L19.892,2.436A1.624,1.624 0,0 1,21.516 4.059L21.516,19.079A1.624,1.624 0,0 1,19.892 20.703L10.961,20.703A1.624,1.624 0,0 1,9.337 19.079L9.337,4.059A1.624,1.624 0,0 1,10.961 2.436z"
-        android:fillColor="#0E0C0F"/>
+        android:fillColor="#FF000000"/>    <!-- #0E0C0F enables tint to work on the color of this path but not the other paths -->
     <path
         android:pathData="M21.629,0.301L30.405,1.958A1.624,1.624 55.694,0 1,31.699 3.855L28.912,18.614A1.624,1.624 55.694,0 1,27.015 19.909L18.24,18.252A1.624,1.624 55.694,0 1,16.945 16.355L19.732,1.596A1.624,1.624 55.694,0 1,21.629 0.301z"
         android:fillColor="#F3F2F5"/>

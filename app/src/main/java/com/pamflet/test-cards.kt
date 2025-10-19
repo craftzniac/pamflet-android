@@ -47,6 +47,41 @@ val decks: List<Deck> = listOf(
     ),
     Deck(
         id = generateId(),
+        name = "Weather reports",
+        cards = cards
+    ),
+    Deck(
+        id = generateId(),
+        name = "C programming",
+        cards = cards
+    ),
+    Deck(
+        id = generateId(),
+        name = "Data structures and Algorithms",
+        cards = cards
+    ),
+    Deck(
+        id = generateId(),
+        name = "Physics: Optics",
+        cards = cards
+    ),
+    Deck(
+        id = generateId(),
+        name = "Aerodynamics II",
+        cards = cards
+    ),
+    Deck(
+        id = generateId(),
+        name = "The Design and Nature of Code",
+        cards = cards
+    ),
+    Deck(
+        id = generateId(),
+        name = "Humane Software",
+        cards = cards
+    ),
+    Deck(
+        id = generateId(),
         name = "Geography",
         cards = listOf(
             Flashcard(

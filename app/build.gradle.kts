@@ -62,11 +62,13 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     // pamflet-dsl parser
-    implementation("io.github.craftzniac:pamflet-dsl:0.1.4")
+    implementation(libs.pamflet.dsl)
     // Jetpack Compose integration
     implementation(libs.androidx.navigation.compose)
     // Testing Navigation
     androidTestImplementation(libs.androidx.navigation.testing)
     // JSON serialization library, works with the Kotlin serialization plugin
     implementation(libs.kotlinx.serialization.json)
+    // Accompanist Flow layout
+    implementation(libs.accompanist.flowlayout)
 }

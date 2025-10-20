@@ -1,4 +1,4 @@
-package com.pamflet
+package com.pamflet.components
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -30,6 +30,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pamflet.Flashcard
+import com.pamflet.FontSize
 import com.pamflet.renderer.WhichFaceChip
 
 enum class CardFace {

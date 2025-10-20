@@ -141,15 +141,6 @@ fun App() {
                     composable<NavDestination.ManageDecks> {
                         ManageDecksScreen(bottomNavBar, onNavigateToDeckCardsListScreen)
                     }
-//                    composable<NavDestination.Decks> {
-//                        DecksScreen(
-//                            data = NavDestination.Decks,
-//                            onNavigateToEditorPreviewTest = {
-//                                navController.navigate(route = NavDestination.EditorPreviewTest)
-//                            },
-//                            onNavigateToCardsSlideScreen
-//                        )
-//                    }
                     composable<NavDestination.EditorPreviewTest> { EditorPreviewTestScreen() }
                     composable<NavDestination.DeckCardsSlideEdit> { backStackEntry ->
                         val deckCardsSlideEdit: NavDestination.DeckCardsSlideEdit =

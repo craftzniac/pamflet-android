@@ -1,6 +1,7 @@
-package com.pamflet
+package com.pamflet.components
 
 import androidx.compose.runtime.Composable
+import com.pamflet.Flashcard
 import com.pamflet.renderer.Renderer
 
 @Composable

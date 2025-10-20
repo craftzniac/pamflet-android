@@ -62,11 +62,57 @@ enum class CardSelectionMode {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun DeckEditTopAppBar(
+    deckName: String,
+    deckId: String,   // can be used later for edit and delete buttons
+    onNavigateBack: () -> Unit
+) {
+    TopAppBar(
+        title = {
+            Column(
+                modifier = Modifier.fillMaxHeight(),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = "Deck",
+                    style = topAppBarTitleTextStyle
+                )
+                TopAppBarTitleDescriptionText(deckName)
+            }
+        },
+        navigationIcon = {
+            IconButton(onClick = onNavigateBack) {
+                Icon(
+                    painter = painterResource(com.pamflet.R.drawable.arrow_left),
+                    contentDescription = "arrow back icon"
+                )
+            }
+        },
+        actions = {
+            IconButton(onClick = {}) {
+                Icon(
+                    painter = painterResource(com.pamflet.R.drawable.pencil),
+                    contentDescription = "pencil"
+                )
+            }
+            IconButton(onClick = {}) {
+                Icon(
+                    painter = painterResource(com.pamflet.R.drawable.trash_can),
+                    contentDescription = "trash can",
+                    tint = Red500
+                )
+            }
+        },
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun DeckCardsSlideEditScreen(
     deckCardsSlideEdit: NavDestination.DeckCardsSlideEdit,
     onNavigateBack: () -> Unit
 ) {
-    val deckName = "Practicing English words"
     val deck = decks[0]
     val cards = deck.cards
     val isFlippedMutState = remember { mutableStateOf(false) }
@@ -80,46 +126,7 @@ fun DeckCardsSlideEditScreen(
     }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Column(
-                        modifier = Modifier.fillMaxHeight(),
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "Deck",
-                            style = topAppBarTitleTextStyle
-                        )
-                        TopAppBarTitleDescriptionText(deckName)
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(
-                            painter = painterResource(com.pamflet.R.drawable.arrow_left),
-                            contentDescription = "arrow back icon"
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            painter = painterResource(com.pamflet.R.drawable.pencil),
-                            contentDescription = "pencil"
-                        )
-                    }
-                    IconButton(onClick = {}) {
-                        Icon(
-                            painter = painterResource(com.pamflet.R.drawable.trash_can),
-                            contentDescription = "trash can",
-                            tint = Red500
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
-            )
-        }
+        topBar = { DeckEditTopAppBar(deckName = deck.name, deckId = deck.id, onNavigateBack) }
     ) { contentPadding ->
         Box(
             modifier = Modifier

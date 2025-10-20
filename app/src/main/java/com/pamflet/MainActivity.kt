@@ -19,6 +19,7 @@ import androidx.navigation.toRoute
 import com.pamflet.screens.CardsSlideScreen
 import com.pamflet.components.BottomNavBar
 import com.pamflet.screens.CardsSlideSetupScreen
+import com.pamflet.screens.DeckCardsListScreen
 import com.pamflet.screens.DeckCardsSlideEditScreen
 import com.pamflet.screens.LoginScreen
 import com.pamflet.screens.ManageDecksScreen
@@ -79,6 +80,10 @@ fun App() {
                 )
             }
 
+            val onNavigateToDeckCardsListScreen = { data: NavDestination.DeckCardsList ->
+                navController.navigate(route = data)
+            }
+
             val onNavigateBack: () -> Unit = {
                 navController.popBackStack()
             }
@@ -133,7 +138,9 @@ fun App() {
 
 
                     // Start flashcard/deck management screens
-                    composable<NavDestination.ManageDecks> { ManageDecksScreen(bottomNavBar) }
+                    composable<NavDestination.ManageDecks> {
+                        ManageDecksScreen(bottomNavBar, onNavigateToDeckCardsListScreen)
+                    }
 //                    composable<NavDestination.Decks> {
 //                        DecksScreen(
 //                            data = NavDestination.Decks,
@@ -148,6 +155,14 @@ fun App() {
                         val deckCardsSlideEdit: NavDestination.DeckCardsSlideEdit =
                             backStackEntry.toRoute()
                         DeckCardsSlideEditScreen(deckCardsSlideEdit, onNavigateBack)
+                    }
+                    composable<NavDestination.DeckCardsList> { backStackEntry ->
+                        val deckCardsList: NavDestination.DeckCardsList = backStackEntry.toRoute()
+                        DeckCardsListScreen(
+                            deckCardsList,
+                            onNavigateBack,
+                            onNavigateToDeckCardsSlideEditScreen
+                        )
                     }
                     // End flashcard/deck management screens
 

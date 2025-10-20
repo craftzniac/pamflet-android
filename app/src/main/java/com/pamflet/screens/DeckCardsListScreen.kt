@@ -34,25 +34,29 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pamflet.NavDestination
-import com.pamflet.colors
-import com.pamflet.components.SimpleTopAppBar
 import com.pamflet.decks
 import com.pamflet.ui.theme.Gray50
 import com.pamflet.ui.theme.Gray600
-import com.pamflet.ui.theme.Gray700
 import com.pamflet.ui.theme.Gray900
+import com.pamflet.ui.theme.Red500
 
 @Composable
-fun ManageDecksScreen(
-    bottomNavBar: @Composable () -> Unit,
-    onNavigateToDeckCardsListScreen: (data: NavDestination.DeckCardsList) -> Unit
+fun DeckCardsListScreen(
+    deckCardsList: NavDestination.DeckCardsList,
+    onNavigateBack: () -> Unit,
+    onNavigateToDeckCardsSlideEditScreen: (data: NavDestination.DeckCardsSlideEdit) -> Unit
 ) {
-    val decks = decks
+    val deck = decks[0]
+    val cards = deck.cards
     Scaffold(
-        topBar = { SimpleTopAppBar(title = "Manage Decks") },
-        bottomBar = bottomNavBar
-    ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues)) {
+        topBar = { DeckEditTopAppBar(deckName = deck.name, deckId = deck.id, onNavigateBack) }
+    ) { contentPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(contentPadding),
+            contentAlignment = Alignment.Center
+        ) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -77,7 +81,7 @@ fun ManageDecksScreen(
                                 modifier = Modifier.size(18.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
-                            Text("Add Deck")
+                            Text("Add Card")
                         }
                     }
                 }
@@ -87,7 +91,7 @@ fun ManageDecksScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
                     ) {
-                        decks.forEach { deck ->
+                        cards.forEachIndexed { index, card ->
                             Card(
                                 shape = RoundedCornerShape(8.dp),
                                 colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -95,10 +99,10 @@ fun ManageDecksScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        val deckCardsListData = NavDestination.DeckCardsList(
-                                            selectedDeckId = deck.id
+                                        val deckCardsSlideEdit = NavDestination.DeckCardsSlideEdit(
+                                            selectedCardId = card.id
                                         )
-                                        onNavigateToDeckCardsListScreen(deckCardsListData)
+                                        onNavigateToDeckCardsSlideEditScreen(deckCardsSlideEdit)
                                     },
                             ) {
                                 Row(
@@ -109,12 +113,7 @@ fun ManageDecksScreen(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     Text(
-                                        text = "${deck.cards.size}",
-                                        fontSize = 12.sp,
-                                        color = Gray600
-                                    )
-                                    Text(
-                                        text = deck.name,
+                                        text = "Card ${index + 1}",
                                         fontSize = 16.sp,
                                         color = Gray900,
                                         fontWeight = FontWeight.Medium,
@@ -124,9 +123,9 @@ fun ManageDecksScreen(
                                     )
                                     IconButton(onClick = {}) {
                                         Icon(
-                                            imageVector = Icons.Default.MoreVert,
-                                            contentDescription = "overflow",
-                                            tint = Gray900
+                                            painter = painterResource(com.pamflet.R.drawable.trash_can),
+                                            contentDescription = "trash can",
+                                            tint = Red500
                                         )
                                     }
                                 }

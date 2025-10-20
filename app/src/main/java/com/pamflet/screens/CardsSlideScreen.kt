@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -29,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.pamflet.Flashcard
 import com.pamflet.components.FlashcardCard
 import com.pamflet.NavDestination
 import com.pamflet.R
@@ -49,9 +51,14 @@ fun CardsSlideScreen(
     val decks = decks
     val decknames = decks.map { it.name }
     val cards = decks[0].cards
-    val selectedFlashcardMutState = remember { mutableStateOf(cards[0]) }
     val isFlippedMutState = remember { mutableStateOf(false) }
     val pagerState = rememberPagerState(pageCount = { cards.size })
+    val selectedFlashcardMutState = remember { mutableStateOf(cards[pagerState.currentPage]) }
+
+    LaunchedEffect(pagerState.currentPage) {
+        selectedFlashcardMutState.value = cards[pagerState.currentPage]
+        isFlippedMutState.value = false
+    }
 
     Scaffold(
         topBar = {
@@ -132,7 +139,7 @@ fun CardsSlideScreen(
                         ) {
                             FlashcardCard(
                                 card = cards[page],
-                                isFlipped = isFlippedMutState.value
+                                isFlipped = if (page == pagerState.currentPage) isFlippedMutState.value else false
                             )
                         }
                     }

@@ -64,10 +64,10 @@ fun FlippableCard(
                 ) else BorderStroke(width = 0.dp, color = Color.Transparent),
                 elevation = if (isOutlinedCard) {
                     CardDefaults.outlinedCardElevation()
-                } else CardDefaults.cardElevation(),
+                } else CardDefaults.cardElevation(defaultElevation = 2.dp),
                 colors = if (isOutlinedCard) {
                     CardDefaults.outlinedCardColors().copy(containerColor = Color.White)
-                } else CardDefaults.cardColors().copy(containerColor = Color(0xFFEFEFEF)),
+                } else CardDefaults.cardColors().copy(containerColor = Color.White),
                 modifier = modifier.then(
                     Modifier
                         .sizeIn(maxWidth = 350.dp, maxHeight = 450.dp)
@@ -132,11 +132,14 @@ fun Editor(
         ),
         decorationBox = { innerTextField ->
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 WhichFaceChip(cardFace = cardFace)
-                Box(modifier = Modifier.fillMaxSize()) {
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)) {
                     if (content.isEmpty()) {
                         Text("Write something ...", fontSize = 20.sp, color = Color.Gray)
                     }
@@ -147,7 +150,7 @@ fun Editor(
         modifier = Modifier
             .fillMaxSize()
             .border(width = 0.dp, color = Color.Transparent)
-            .padding(16.dp)
+            .padding(0.dp)
             .then(modifier),
         value = content,
         onValueChange = { newValue ->

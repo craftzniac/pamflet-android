@@ -22,7 +22,9 @@ sealed class NavDestination : Routable {
 
     @Serializable
     data class CardsSlide(
-        val deckIds: List<String>
+        val selectedDeckIds: List<String>,
+        val maxNumberOfCards: Int,
+        val isShuffleCards: Boolean
     ) : NavDestination() {
         override val serialName: String
             get() = serializer().descriptor.serialName
@@ -53,7 +55,15 @@ sealed class NavDestination : Routable {
     }
 
     @Serializable
-    data object Profile : NavDestination(){
+    data object Profile : NavDestination() {
+        override val serialName: String
+            get() = serializer().descriptor.serialName
+    }
+
+    @Serializable
+    data class DeckCardsSlideEdit(
+        val selectedCardId: String?
+    ) : NavDestination() {
         override val serialName: String
             get() = serializer().descriptor.serialName
     }

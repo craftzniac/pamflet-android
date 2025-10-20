@@ -1,7 +1,6 @@
 package com.pamflet
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -17,10 +16,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import androidx.navigation.toRoute
-import com.pamflet.CardsSlideScreen
-import com.pamflet.DecksScreen
+import com.pamflet.screens.CardsSlideScreen
 import com.pamflet.components.BottomNavBar
 import com.pamflet.screens.CardsSlideSetupScreen
+import com.pamflet.screens.DeckCardsSlideEditScreen
 import com.pamflet.screens.LoginScreen
 import com.pamflet.screens.ManageDecksScreen
 import com.pamflet.screens.ProfileScreen
@@ -62,6 +61,28 @@ fun App() {
                 navController.navigate(route = NavDestination.ManageDecks)
             }
 
+            val onNavigateToCardsSlideScreen = { data: NavDestination.CardsSlide ->
+                navController.navigate(
+                    route = NavDestination.CardsSlide(
+                        selectedDeckIds = data.selectedDeckIds,
+                        maxNumberOfCards = data.maxNumberOfCards,
+                        isShuffleCards = data.isShuffleCards
+                    )
+                )
+            }
+
+            val onNavigateToDeckCardsSlideEditScreen = { data: NavDestination.DeckCardsSlideEdit ->
+                navController.navigate(
+                    route = NavDestination.DeckCardsSlideEdit(
+                        selectedCardId = data.selectedCardId
+                    )
+                )
+            }
+
+            val onNavigateBack: () -> Unit = {
+                navController.popBackStack()
+            }
+
             val bottomNavBar = @Composable {
                 BottomNavBar(
                     onNavigateToCardsSlideSetupScreen,
@@ -96,32 +117,38 @@ fun App() {
                     // Start flashcard usage screens
                     composable<NavDestination.CardsSlideSetup> {
                         CardsSlideSetupScreen(
-                            bottomNavBar
+                            bottomNavBar,
+                            onNavigateToCardsSlideScreen
                         )
                     }
                     composable<NavDestination.CardsSlide> { backStackEntry ->
                         val cardsSlide: NavDestination.CardsSlide = backStackEntry.toRoute()
-                        CardsSlideScreen(cardsSlide, onNavigateBack = {
-                            navController.popBackStack()
-                        })
+                        CardsSlideScreen(
+                            cardsSlide,
+                            onNavigateBack,
+                            onNavigateToDeckCardsSlideEditScreen
+                        )
                     }
                     // End flashcard usage screens
 
 
                     // Start flashcard/deck management screens
                     composable<NavDestination.ManageDecks> { ManageDecksScreen(bottomNavBar) }
-                    composable<NavDestination.Decks> {
-                        DecksScreen(
-                            data = NavDestination.Decks,
-                            onNavigateToEditorPreviewTest = {
-                                navController.navigate(route = NavDestination.EditorPreviewTest)
-                            },
-                            onNavigateToCardsSlideScreen = { deckIds ->
-                                navController.navigate(route = NavDestination.CardsSlide(deckIds))
-                            }
-                        )
-                    }
+//                    composable<NavDestination.Decks> {
+//                        DecksScreen(
+//                            data = NavDestination.Decks,
+//                            onNavigateToEditorPreviewTest = {
+//                                navController.navigate(route = NavDestination.EditorPreviewTest)
+//                            },
+//                            onNavigateToCardsSlideScreen
+//                        )
+//                    }
                     composable<NavDestination.EditorPreviewTest> { EditorPreviewTestScreen() }
+                    composable<NavDestination.DeckCardsSlideEdit> { backStackEntry ->
+                        val deckCardsSlideEdit: NavDestination.DeckCardsSlideEdit =
+                            backStackEntry.toRoute()
+                        DeckCardsSlideEditScreen(deckCardsSlideEdit, onNavigateBack)
+                    }
                     // End flashcard/deck management screens
 
 

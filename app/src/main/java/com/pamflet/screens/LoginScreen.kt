@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -76,81 +77,89 @@ fun LoginScreen(
                 .padding(paddingValues)
                 .background(color = Color.White)
         ) {
-            Column(
-                modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(32.dp)
-            ) {
-                Text("Login", fontSize = 24.sp, fontWeight = FontWeight.Medium)
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    PTextField(
-                        value = viewModel.email.value,
-                        label = "Email",
-                        onValueChange = { viewModel.updateEmail(it) }
-                    )
-                    PTextField(
-                        value = viewModel.password.value,
-                        label = "Password",
-                        onValueChange = { viewModel.updatePassword(it) }
-                    )
-                    Button(
-                        onClick = {
-                            onNavigateToCardsSlideSetupScreen()
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp),
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Text("Continue", fontSize = 16.sp, modifier = Modifier.padding(4.dp))
-                    }
-
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .height(0.5.dp)
-                                .background(color = Gray500)
-                                .weight(1f)
-                        ) {}
-                        Text("Or")
-                        Box(
-                            modifier = Modifier
-                                .height(0.5.dp)
-                                .background(color = Gray500)
-                                .weight(1f)
-                        ) {}
-                    }
-                    GoogleSignupButton()
-                    Spacer(Modifier.height(8.dp))
+            LazyColumn {
+                item {
                     Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(32.dp)
                     ) {
-                        Text(
-                            "Don't already have an account?",
-                            fontSize = 16.sp,
-                            textAlign = TextAlign.Center
-                        )
-                        Button(
-                            modifier = Modifier.padding(0.dp),
-                            onClick = {
-                                onNavigateToSignupScreen()
-                            },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
-                            interactionSource = remember { MutableInteractionSource() },
-                            contentPadding = PaddingValues(0.dp),
+                        Text("Login", fontSize = 24.sp, fontWeight = FontWeight.Medium)
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Text(
-                                "Signup",
-                                textDecoration = TextDecoration.Underline,
-                                color = Purple500,
-                                lineHeight = 12.sp
+                            PTextField(
+                                value = viewModel.email.value,
+                                label = "Email",
+                                onValueChange = { viewModel.updateEmail(it) }
                             )
+                            PTextField(
+                                value = viewModel.password.value,
+                                label = "Password",
+                                onValueChange = { viewModel.updatePassword(it) }
+                            )
+                            Button(
+                                onClick = {
+                                    onNavigateToCardsSlideSetupScreen()
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(48.dp),
+                                shape = RoundedCornerShape(8.dp)
+                            ) {
+                                Text(
+                                    "Continue",
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.padding(4.dp)
+                                )
+                            }
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .height(0.5.dp)
+                                        .background(color = Gray500)
+                                        .weight(1f)
+                                ) {}
+                                Text("Or")
+                                Box(
+                                    modifier = Modifier
+                                        .height(0.5.dp)
+                                        .background(color = Gray500)
+                                        .weight(1f)
+                                ) {}
+                            }
+                            GoogleSignupButton()
+                            Spacer(Modifier.height(8.dp))
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Text(
+                                    "Don't already have an account?",
+                                    fontSize = 16.sp,
+                                    textAlign = TextAlign.Center
+                                )
+                                Button(
+                                    modifier = Modifier.padding(0.dp),
+                                    onClick = {
+                                        onNavigateToSignupScreen()
+                                    },
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent),
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    contentPadding = PaddingValues(0.dp),
+                                ) {
+                                    Text(
+                                        "Signup",
+                                        textDecoration = TextDecoration.Underline,
+                                        color = Purple500,
+                                        lineHeight = 12.sp
+                                    )
+                                }
+                            }
                         }
                     }
                 }

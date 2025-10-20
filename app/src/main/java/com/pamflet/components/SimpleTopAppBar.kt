@@ -15,6 +15,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import com.pamflet.ui.theme.Gray900
+
+val topAppBarTitleTextStyle = TextStyle(
+    fontSize = 16.sp,
+    fontWeight = FontWeight.Medium,
+    lineHeight = 10.sp,
+    color = Gray900
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,7 +45,7 @@ fun SimpleTopAppBar(
                     Logo()
                     Spacer(modifier = Modifier.width(width = 16.dp))
                 }
-                Text(title, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                Text(text = title, style = topAppBarTitleTextStyle)
             }
         }
     )

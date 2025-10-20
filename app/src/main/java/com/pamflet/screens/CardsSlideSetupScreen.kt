@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pamflet.NavDestination
 import com.pamflet.components.NumberStepInput
 import com.pamflet.components.SimpleTopAppBar
 import com.pamflet.decks
@@ -52,7 +53,10 @@ val sectionHeaderTextStyle = TextStyle(
 )
 
 @Composable
-fun CardsSlideSetupScreen(bottomNavBar: @Composable () -> Unit) {
+fun CardsSlideSetupScreen(
+    bottomNavBar: @Composable () -> Unit,
+    onNavigateToCardsSlideScreen: (data: NavDestination.CardsSlide) -> Unit
+) {
     Scaffold(
         topBar = { SimpleTopAppBar(title = "Card Slide Setup", isShowPamfletLogo = true) },
         bottomBar = bottomNavBar
@@ -160,7 +164,15 @@ fun CardsSlideSetupScreen(bottomNavBar: @Composable () -> Unit) {
                 item {
                     Button(
                         enabled = selectedDeckIdsMutState.toList().isNotEmpty(),
-                        onClick = {},
+                        onClick = {
+                            onNavigateToCardsSlideScreen(
+                                NavDestination.CardsSlide(
+                                    maxNumberOfCards = maxNumberOfCardsMutState.intValue,
+                                    isShuffleCards = isShuffleCardsMutState.value,
+                                    selectedDeckIds = selectedDeckIdsMutState.toList()
+                                )
+                            )
+                        },
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.height(48.dp)
                     ) {

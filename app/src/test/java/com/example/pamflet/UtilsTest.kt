@@ -1,7 +1,7 @@
 package com.example.pamflet
 
 import androidx.compose.ui.graphics.Color
-import com.pamflet.parseColor
+import com.pamflet.ui.parseColor
 import org.junit.Test
 import org.junit.Assert.*
 

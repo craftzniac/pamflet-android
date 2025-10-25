@@ -1,0 +1,34 @@
+package com.pamflet.data.local.dao
+
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Query
+import com.pamflet.data.local.entity.DeckEntity
+import com.pamflet.data.local.entity.FlashcardEntity
+
+data class DeckEntityWithCardCount(val id: String, val name: String, val cardCount: Int)
+data class DeckEntityWithCards(val id: String, val name: String, val cards: List<FlashcardEntity>)
+
+@Dao
+interface DeckDao {
+    @Query("SELECT * FROM deck_table")
+    suspend fun getAll(): List<DeckEntity>
+
+    @Query(
+        """
+    SELECT deck_table.*, COUNT(flashcard_table.id) AS cardCount FROM deck_table
+    LEFT JOIN flashcard_table ON deck_table.id = flashcard_table.deck_id
+    GROUP BY deck_table.id
+        """
+    )
+    suspend fun getAllWithCardCount(): List<DeckEntityWithCardCount>
+
+    @Query("SELECT * FROM deck_table WHERE deck_table.id = :id")
+    suspend fun getOne(id: String): DeckEntity?
+
+    @Delete
+    suspend fun deleteOne(deck: DeckEntity)
+//
+//    @Upsert
+//    fun upsertOne(deck: Deck)
+}

@@ -10,36 +10,38 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import androidx.navigation.toRoute
-import com.pamflet.screens.CardsSlideScreen
-import com.pamflet.components.BottomNavBar
-import com.pamflet.screens.CardsSlideSetupScreen
-import com.pamflet.screens.DeckCardsListScreen
-import com.pamflet.screens.DeckCardsSlideEditScreen
-import com.pamflet.screens.LoginScreen
-import com.pamflet.screens.ManageDecksScreen
-import com.pamflet.screens.ProfileScreen
-import com.pamflet.screens.SignupScreen
+import com.pamflet.ui.screens.cardsslide.CardsSlideScreen
+import com.pamflet.ui.components.BottomNavBar
+import com.pamflet.ui.screens.cardsslidesetup.CardsSlideSetupScreen
+import com.pamflet.ui.screens.managedecks.deckcardslist.DeckCardsListScreen
+import com.pamflet.ui.screens.managedecks.deckcardsslideedit.DeckCardsSlideEditScreen
+import com.pamflet.ui.screens.auth.login.LoginScreen
+import com.pamflet.ui.screens.managedecks.ManageDecksScreen
+import com.pamflet.ui.screens.profile.ProfileScreen
+import com.pamflet.ui.screens.auth.signup.SignupScreen
+import com.pamflet.ui.screens.cardsslidesetup.CardsSlideSetupViewModelFactory
 import com.pamflet.ui.theme.PamfletTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val app = (application as PamfletApplication)
         setContent {
-            App()
+            App(app)
         }
     }
 }
 
-
 @Composable
-fun App() {
+fun App(app: PamfletApplication) {
     PamfletTheme(
         darkTheme = false
     ) {
@@ -48,6 +50,7 @@ fun App() {
                 .fillMaxSize()
         ) {
             val navController = rememberNavController()
+
             val currentSelectedRoute =
                 navController.currentBackStackEntryAsState().value?.destination?.route
             val onNavigateToProfileScreen = {
@@ -105,7 +108,7 @@ fun App() {
                             onNavigateToSignupScreen = {
                                 navController.navigate(route = NavDestination.Signup)
                             },
-                            onNavigateToCardsSlideSetupScreen
+                            onNavigateToCardsSlideSetupScreen,
                         )
                     }
                     composable<NavDestination.Signup> {
@@ -122,6 +125,9 @@ fun App() {
                     // Start flashcard usage screens
                     composable<NavDestination.CardsSlideSetup> {
                         CardsSlideSetupScreen(
+                            cardsSlideSetupViewModel = viewModel(
+                                factory = CardsSlideSetupViewModelFactory(deckRepository = app.deckRepository)
+                            ),
                             bottomNavBar,
                             onNavigateToCardsSlideScreen
                         )
@@ -141,7 +147,6 @@ fun App() {
                     composable<NavDestination.ManageDecks> {
                         ManageDecksScreen(bottomNavBar, onNavigateToDeckCardsListScreen)
                     }
-                    composable<NavDestination.EditorPreviewTest> { EditorPreviewTestScreen() }
                     composable<NavDestination.DeckCardsSlideEdit> { backStackEntry ->
                         val deckCardsSlideEdit: NavDestination.DeckCardsSlideEdit =
                             backStackEntry.toRoute()
@@ -166,11 +171,4 @@ fun App() {
             NavHost(navController = navController, graph = navGraph)
         }
     }
-}
-
-
-@Preview(showSystemUi = true, showBackground = true)
-@Composable
-fun PamfletPreview() {
-    App()
 }

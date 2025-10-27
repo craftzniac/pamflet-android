@@ -20,7 +20,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,6 +42,7 @@ import com.pamflet.ui.theme.Gray500
 import com.pamflet.ui.theme.Purple500
 import com.pamflet.ui.theme.Purple900
 import com.pamflet.R
+import com.pamflet.ui.components.PTextField
 
 
 class LoginScreenViewModel : ViewModel() {
@@ -169,29 +169,6 @@ fun LoginScreen(
     }
 }
 
-
-@Composable
-fun PTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String
-) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(2.dp)
-    ) {
-        Text(
-            text = label
-        )
-        OutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth(),
-            value = value,
-            onValueChange = { update -> onValueChange(update) },
-            singleLine = true
-        )
-    }
-}
 
 @Composable
 fun GoogleSignupButton() {

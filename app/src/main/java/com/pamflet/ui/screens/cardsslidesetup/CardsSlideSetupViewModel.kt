@@ -1,42 +1,35 @@
 package com.pamflet.ui.screens.cardsslidesetup
 
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
-import com.pamflet.data.repository.DeckRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.pamflet.ui.screens.Deck
-import kotlinx.coroutines.delay
-import com.pamflet.data.repository.deckEntities
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.pamflet.data.repository.DeckRepository
+import com.pamflet.ui.screens.DecksSharedViewModel
 
 @Suppress("UNCHECKED_CAST")
 class CardsSlideSetupViewModelFactory(
-    val deckRepository: DeckRepository
+    val decksSharedViewModel: DecksSharedViewModel, val deckRepository: DeckRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return CardsSlideSetupViewModel(deckRepository) as T
+        return CardsSlideSetupViewModel(
+            decksSharedViewModel, deckRepository
+        ) as T
     }
 }
 
-sealed class DecksUiState {
-    object Loading : DecksUiState()
-    data class Success(val decks: List<Deck>) : DecksUiState()
-    data class Error(val error: String) : DecksUiState()
-}
-
 class CardsSlideSetupViewModel(
+    val decksSharedViewModel: DecksSharedViewModel,
     val deckRepository: DeckRepository
 ) : ViewModel() {
-    var decksUiState by mutableStateOf<DecksUiState>(
-        DecksUiState.Loading
-    )
-        private set
+    val decksUiStateMutState = decksSharedViewModel.decksUiStateMutState
+
+    init {
+        Log.d("CardsSlideSetupVM", "decksUiState: ${decksUiStateMutState.value}")
+    }
 
     private val maxNumberOfCardsMin: UInt =
         5u     // the minimum value acceptable for maxNumberOfCards
@@ -55,11 +48,6 @@ class CardsSlideSetupViewModel(
         listOf<String>()
     )
         private set
-
-
-    init {
-        getDecks()
-    }
 
     fun incrementMaxNumberOfCards() {
         if (maxNumberOfCards + step > maxNumberOfCardsMax.toInt()) {
@@ -104,30 +92,6 @@ class CardsSlideSetupViewModel(
 
     fun isDeckSelected(deckId: String): Boolean {
         return deckId in selectedDeckIds
-    }
-
-    fun getDecks() {
-        viewModelScope.launch {
-            when (decksUiState) {
-                is DecksUiState.Success -> { /* only switch to the loading state if the data is being fetched for the first time */
-                }
-
-                else -> {
-                    decksUiState = DecksUiState.Loading
-                }
-            }
-            val decksResponse = withContext(Dispatchers.IO) {
-                delay(2000)
-                deckRepository.getDecks()
-                deckEntities
-            }
-            decksUiState = DecksUiState.Success(decks = decksResponse.map {
-                Deck(
-                    id = it.id,
-                    name = it.name,
-                )
-            })
-        }
     }
 
     fun parseToPositiveInteger(value: String): Int? {

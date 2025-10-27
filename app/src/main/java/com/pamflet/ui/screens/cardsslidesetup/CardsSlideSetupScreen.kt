@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.getValue
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -33,16 +33,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pamflet.NavDestination
+import com.pamflet.ui.components.ErrorSection
+import com.pamflet.ui.components.LoadingSpinner
 import com.pamflet.ui.components.NumberStepInput
 import com.pamflet.ui.components.SimpleTopAppBar
+import com.pamflet.ui.screens.DecksUiState
 import com.pamflet.ui.theme.Gray200
 import com.pamflet.ui.theme.Gray50
-import com.pamflet.ui.theme.Gray500
-import com.pamflet.ui.theme.Gray600
 import com.pamflet.ui.theme.Gray900
 import com.pamflet.ui.theme.Purple400
 import com.pamflet.ui.theme.Purple900
-import com.pamflet.ui.theme.Red500
 
 val sectionHeaderTextStyle = TextStyle(
     fontSize = 16.sp,
@@ -60,7 +60,7 @@ fun CardsSlideSetupScreen(
         topBar = { SimpleTopAppBar(title = "Card Slide Setup", isShowPamfletLogo = true) },
         bottomBar = bottomNavBar
     ) { paddingValues ->
-        val decksUiState = cardsSlideSetupViewModel.decksUiState
+        val decksUiState by cardsSlideSetupViewModel.decksUiStateMutState
         val maxNumberOfCardsMutState = remember { mutableIntStateOf(100) }
         val isShuffleCardsMutState = remember { mutableStateOf(false) }
         val isShuffleCards = cardsSlideSetupViewModel.isShuffleCards
@@ -94,7 +94,7 @@ fun CardsSlideSetupScreen(
                             )
                             Text(
                                 text = "${
-                                    if (decksUiState is DecksUiState.Success) decksUiState.decks.size else ""
+                                    if (decksUiState is DecksUiState.Success) (decksUiState as DecksUiState.Success).decks.size else ""
                                 }", fontSize = 16.sp, color = Purple900
                             )
                         }
@@ -107,16 +107,18 @@ fun CardsSlideSetupScreen(
                                         .padding(16.dp),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.width(32.dp),
-                                        color = Gray600,
-                                        trackColor = Gray200
-                                    )
+                                    LoadingSpinner()
                                 }
                             }
 
+                            is DecksUiState.Error -> {
+                                ErrorSection(
+                                    message = (decksUiState as DecksUiState.Error).message
+                                )
+                            }
+
                             is DecksUiState.Success -> {
-                                val decks = decksUiState.decks
+                                val decks = (decksUiState as DecksUiState.Success).decks
 
                                 FlowRow(
                                     horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -153,10 +155,6 @@ fun CardsSlideSetupScreen(
                                         )
                                     }
                                 }
-                            }
-
-                            is DecksUiState.Error -> {
-                                Text("An Error occurred", color = Red500)
                             }
                         }
                     }

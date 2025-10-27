@@ -35,19 +35,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pamflet.NavDestination
 import com.pamflet.R
+import com.pamflet.ui.components.LoadingSpinner
 import com.pamflet.ui.components.SimpleTopAppBar
+import com.pamflet.ui.screens.DecksUiState
 import com.pamflet.ui.screens.cardsslide.dummyDecksWithCards
 import com.pamflet.ui.theme.Gray50
 import com.pamflet.ui.theme.Gray600
 import com.pamflet.ui.theme.Gray900
-
+import androidx.compose.runtime.getValue
 
 @Composable
 fun ManageDecksScreen(
     bottomNavBar: @Composable () -> Unit,
-    onNavigateToDeckCardsListScreen: (data: NavDestination.DeckCardsList) -> Unit
+    manageDecksViewModel: ManageDecksViewModel,
+    onNavigateToDeckCardsListScreen: (data: NavDestination.DeckCardsList) -> Unit,
+    onNavigateToAddDeckScreen: () -> Unit,
 ) {
-    val decks = dummyDecksWithCards
+    val decksUiState by manageDecksViewModel.decksUiStateMutState
     Scaffold(
         topBar = { SimpleTopAppBar(title = "Manage Decks") },
         bottomBar = bottomNavBar
@@ -67,7 +71,7 @@ fun ManageDecksScreen(
                             .padding(start = 16.dp, end = 16.dp, top = 16.dp)
                     ) {
                         Button(
-                            onClick = {},
+                            onClick = onNavigateToAddDeckScreen,
                             shape = RoundedCornerShape(8.dp),
                             modifier = Modifier.height(48.dp)
                         ) {
@@ -83,51 +87,87 @@ fun ManageDecksScreen(
                 }
 
                 item {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-                    ) {
-                        decks.forEach { deck ->
-                            Card(
-                                shape = RoundedCornerShape(8.dp),
-                                colors = CardDefaults.cardColors(containerColor = Color.White),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    when (decksUiState) {
+                        is DecksUiState.Loading -> {
+                            Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .clickable {
-                                        val deckCardsListData = NavDestination.DeckCardsList(
-                                            selectedDeckId = deck.id
-                                        )
-                                        onNavigateToDeckCardsListScreen(deckCardsListData)
-                                    },
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center
                             ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                ) {
-                                    Text(
-                                        text = "${deck.cards.size}",
-                                        fontSize = 12.sp,
-                                        color = Gray600
-                                    )
-                                    Text(
-                                        text = deck.name,
-                                        fontSize = 16.sp,
-                                        color = Gray900,
-                                        fontWeight = FontWeight.Medium,
-                                        modifier = Modifier.weight(1F),
-                                        overflow = TextOverflow.Ellipsis,
-                                        maxLines = 1
-                                    )
-                                    IconButton(onClick = {}) {
-                                        Icon(
-                                            imageVector = Icons.Default.MoreVert,
-                                            contentDescription = "overflow",
-                                            tint = Gray900
-                                        )
+                                LoadingSpinner()
+                            }
+                        }
+
+                        is DecksUiState.Error -> {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text((decksUiState as DecksUiState.Error).message, fontSize = 16.sp, color = Gray900)
+                                Button(onClick = {}, modifier = Modifier.height(48.dp)) {
+                                    Text("Retry")
+                                }
+                            }
+                        }
+
+                        is DecksUiState.Success -> {
+                            val decks = (decksUiState as DecksUiState.Success).decks
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier.padding(
+                                    start = 16.dp,
+                                    end = 16.dp,
+                                    bottom = 16.dp
+                                )
+                            ) {
+                                decks.forEach { deck ->
+                                    Card(
+                                        shape = RoundedCornerShape(8.dp),
+                                        colors = CardDefaults.cardColors(containerColor = Color.White),
+                                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable {
+                                                val deckCardsListData =
+                                                    NavDestination.DeckCardsList(
+                                                        selectedDeckId = deck.id
+                                                    )
+                                                onNavigateToDeckCardsListScreen(deckCardsListData)
+                                            },
+                                    ) {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            Text(
+                                                text = "${deck.cardCount}",
+                                                fontSize = 12.sp,
+                                                color = Gray600
+                                            )
+                                            Text(
+                                                text = deck.name,
+                                                fontSize = 16.sp,
+                                                color = Gray900,
+                                                fontWeight = FontWeight.Medium,
+                                                modifier = Modifier.weight(1F),
+                                                overflow = TextOverflow.Ellipsis,
+                                                maxLines = 1
+                                            )
+                                            IconButton(onClick = {}) {
+                                                Icon(
+                                                    imageVector = Icons.Default.MoreVert,
+                                                    contentDescription = "overflow",
+                                                    tint = Gray900
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                             }

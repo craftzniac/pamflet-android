@@ -35,9 +35,9 @@ import com.pamflet.ui.theme.Gray500
 import com.pamflet.ui.theme.Purple500
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
+import com.pamflet.ui.components.PTextField
 import com.pamflet.ui.components.SimpleTopAppBar
 import com.pamflet.ui.screens.auth.login.GoogleSignupButton
-import com.pamflet.ui.screens.auth.login.PTextField
 
 
 class SignupScreenViewModel : ViewModel() {

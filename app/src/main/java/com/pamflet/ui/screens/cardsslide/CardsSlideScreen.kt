@@ -37,47 +37,48 @@ import com.pamflet.ui.components.FlashcardFlipButton
 import com.pamflet.ui.components.TopAppBarTitleDescriptionText
 import com.pamflet.ui.components.topAppBarTitleTextStyle
 import com.pamflet.ui.screens.Deck
+import com.pamflet.ui.screens.DeckWithCards
 import com.pamflet.ui.screens.Flashcard
 import com.pamflet.ui.theme.Gray50
-import pamflet.parser.generateId
+import java.util.UUID
 
 
 val dummyCards = listOf(
     Flashcard(
-        id = generateId(),
+        id = UUID.randomUUID().toString(),
         front = "something",
         back = "nothing"
     ),
     Flashcard(
-        id = generateId(),
+        id = UUID.randomUUID().toString(),
         front = "Somebody name",
         back = "Another thing to note"
     ),
 )
 
 val dummyDecksWithCards = listOf(
-    Deck(
-        id = generateId(),
+    DeckWithCards(
+        id = UUID.randomUUID().toString(),
         name = "Language design fundentals",
         cards = dummyCards
     ),
-    Deck(
-        id = generateId(),
+    DeckWithCards(
+        id = UUID.randomUUID().toString(),
         name = "c programming",
         cards = dummyCards
     ),
-    Deck(
-        id = generateId(),
+    DeckWithCards(
+        id = UUID.randomUUID().toString(),
         name = "nature of code",
         cards = dummyCards
     ),
-    Deck(
-        id = generateId(),
+    DeckWithCards(
+        id = UUID.randomUUID().toString(),
         name = "humane software design",
         cards = dummyCards
     ),
-    Deck(
-        id = generateId(),
+    DeckWithCards(
+        id = UUID.randomUUID().toString(),
         name = "anatomy",
         cards = dummyCards
     )

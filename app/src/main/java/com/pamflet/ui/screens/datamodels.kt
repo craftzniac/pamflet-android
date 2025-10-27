@@ -6,8 +6,14 @@ data class Flashcard(
     var back: String,
 )
 
-data class Deck(
+data class DeckWithCards(
     val id: String,
     val name: String,
     val cards: List<Flashcard> = listOf()
+)
+
+data class Deck(
+    val id: String,
+    val name: String,
+    val cardCount: Int,
 )

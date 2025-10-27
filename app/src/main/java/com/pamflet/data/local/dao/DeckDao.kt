@@ -2,6 +2,7 @@ package com.pamflet.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
+import androidx.room.Insert
 import androidx.room.Query
 import com.pamflet.data.local.entity.DeckEntity
 import com.pamflet.data.local.entity.FlashcardEntity
@@ -11,8 +12,8 @@ data class DeckEntityWithCards(val id: String, val name: String, val cards: List
 
 @Dao
 interface DeckDao {
-    @Query("SELECT * FROM deck_table")
-    suspend fun getAll(): List<DeckEntity>
+//    @Query("SELECT * FROM deck_table")
+//    suspend fun getAll(): List<DeckEntity>
 
     @Query(
         """
@@ -21,13 +22,17 @@ interface DeckDao {
     GROUP BY deck_table.id
         """
     )
-    suspend fun getAllWithCardCount(): List<DeckEntityWithCardCount>
+    suspend fun getAll(): List<DeckEntityWithCardCount>
 
     @Query("SELECT * FROM deck_table WHERE deck_table.id = :id")
     suspend fun getOne(id: String): DeckEntity?
 
     @Delete
     suspend fun deleteOne(deck: DeckEntity)
+
+
+    @Insert
+    suspend fun createOne(deck: DeckEntity): Long
 //
 //    @Upsert
 //    fun upsertOne(deck: Deck)

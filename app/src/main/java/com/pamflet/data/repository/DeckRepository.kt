@@ -1,10 +1,40 @@
 package com.pamflet.data.repository
 
 import com.pamflet.data.local.dao.DeckDao
+import com.pamflet.data.local.dao.DeckEntityWithCardCount
+import com.pamflet.data.local.entity.DeckEntity
+
+sealed class CreateDeckResponse {
+    data class Success(val newDeckId: String) : CreateDeckResponse()
+    data class Error(val message: String) : CreateDeckResponse()
+}
+
+sealed class GetAllDecksResponse {
+    data class Success(val decks: List<DeckEntityWithCardCount>) :
+        GetAllDecksResponse()
+
+    data class Error(val message: String) : GetAllDecksResponse()
+}
 
 class DeckRepository(
     private val deckDao: DeckDao,
     private val flashcardRepository: FlashcardRepository
 ) {
-    suspend fun getDecks() = deckDao.getAll()
+    suspend fun getDecks(): GetAllDecksResponse {
+        return try {
+            val decks = deckDao.getAll()
+            GetAllDecksResponse.Success(decks)
+        } catch (ex: Exception) {
+            GetAllDecksResponse.Error("Something went wrong")
+        }
+    }
+
+    suspend fun createDeck(deckName: String): CreateDeckResponse {
+        return try {
+            val newDeckId = deckDao.createOne(DeckEntity(name = deckName))
+            CreateDeckResponse.Success(newDeckId.toString())
+        } catch (ex: Exception) {
+            CreateDeckResponse.Error("Something went wrong")
+        }
+    }
 }

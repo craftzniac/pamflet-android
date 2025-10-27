@@ -9,6 +9,9 @@ interface Routable {
 @Serializable
 sealed class NavDestination : Routable {
     @Serializable
+    data object Root
+
+    @Serializable
     data object EditorPreviewTest : NavDestination() {
         override val serialName: String
             get() = serializer().descriptor.serialName
@@ -73,5 +76,8 @@ sealed class NavDestination : Routable {
         override val serialName: String
             get() = serializer().descriptor.serialName
     }
+
+    @Serializable
+    data object AddDeck
 }
 

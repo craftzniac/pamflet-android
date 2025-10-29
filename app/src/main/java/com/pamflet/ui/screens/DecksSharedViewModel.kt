@@ -1,12 +1,13 @@
 package com.pamflet.ui.screens
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.pamflet.data.repository.DeckRepository
+import com.pamflet.data.repository.DeleteAllFromDeckResponse
+import com.pamflet.data.repository.DeleteDeckResponse
+import com.pamflet.data.repository.FlashcardRepository
 import com.pamflet.data.repository.GetAllDecksResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -15,10 +16,11 @@ import kotlinx.coroutines.withContext
 
 @Suppress("UNCHECKED_CAST")
 class DecksSharedViewModelFactory(
-    val deckRepository: DeckRepository
+    val deckRepository: DeckRepository,
+    val flashcardRepository: FlashcardRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return DecksSharedViewModel(deckRepository) as T
+        return DecksSharedViewModel(deckRepository, flashcardRepository) as T
     }
 }
 
@@ -28,10 +30,20 @@ sealed class DecksUiState {
     data class Error(val message: String) : DecksUiState()
 }
 
+sealed class DeleteDeckActionStatus {
+    object Submitting : DeleteDeckActionStatus()
+    object NotStarted : DeleteDeckActionStatus()
+    object Success : DeleteDeckActionStatus()
+    data class Error(val message: String) : DeleteDeckActionStatus()
+}
 
 class DecksSharedViewModel(
-    val deckRepository: DeckRepository
+    val deckRepository: DeckRepository,
+    val flashcardRepository: FlashcardRepository
 ) : ViewModel() {
+    var deleteDeckActionStatusMutState =
+        mutableStateOf<DeleteDeckActionStatus>(DeleteDeckActionStatus.NotStarted)
+        private set
 
     var decksUiStateMutState = mutableStateOf<DecksUiState>(
         DecksUiState.Loading
@@ -66,4 +78,39 @@ class DecksSharedViewModel(
             }
         }
     }
+
+
+    fun deleteDeck(deck: Deck) {
+        viewModelScope.launch {
+            deleteDeckActionStatusMutState.value = DeleteDeckActionStatus.Submitting
+            val response = withContext(Dispatchers.IO) {
+                delay(2000)
+                flashcardRepository.deleteAllFromDeck(deck.id)
+            }
+            when (response) {
+                is DeleteAllFromDeckResponse.Error -> {
+                    deleteDeckActionStatusMutState.value =
+                        DeleteDeckActionStatus.Error(response.message)
+                }
+
+                is DeleteAllFromDeckResponse.Success -> {
+                    val response =
+                        withContext(Dispatchers.IO) { deckRepository.deleteDeck(deck.toDeckEntity()) }
+
+                    when (response) {
+                        is DeleteDeckResponse.Error -> {
+                            deleteDeckActionStatusMutState.value =
+                                DeleteDeckActionStatus.Error(response.message)
+                        }
+
+                        is DeleteDeckResponse.Success -> {
+                            fetchDecks()
+                            deleteDeckActionStatusMutState.value = DeleteDeckActionStatus.Success
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }

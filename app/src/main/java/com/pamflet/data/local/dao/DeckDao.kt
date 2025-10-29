@@ -12,9 +12,6 @@ data class DeckEntityWithCards(val id: String, val name: String, val cards: List
 
 @Dao
 interface DeckDao {
-//    @Query("SELECT * FROM deck_table")
-//    suspend fun getAll(): List<DeckEntity>
-
     @Query(
         """
     SELECT deck_table.*, COUNT(flashcard_table.id) AS cardCount FROM deck_table
@@ -30,10 +27,6 @@ interface DeckDao {
     @Delete
     suspend fun deleteOne(deck: DeckEntity)
 
-
     @Insert
     suspend fun createOne(deck: DeckEntity): Long
-//
-//    @Upsert
-//    fun upsertOne(deck: Deck)
 }

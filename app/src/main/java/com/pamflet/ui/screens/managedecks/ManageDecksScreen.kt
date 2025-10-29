@@ -1,5 +1,6 @@
 package com.pamflet.ui.screens.managedecks
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,14 +18,20 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,6 +50,17 @@ import com.pamflet.ui.theme.Gray50
 import com.pamflet.ui.theme.Gray600
 import com.pamflet.ui.theme.Gray900
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import com.pamflet.ui.components.ErrorSection
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.style.TextAlign
+import com.pamflet.ui.components.CustomDialog
+import com.pamflet.ui.components.Logo
+import com.pamflet.ui.screens.Deck
+import com.pamflet.ui.screens.DeleteDeckActionStatus
+import com.pamflet.ui.theme.Gray100
+import com.pamflet.ui.theme.Red500
 
 @Composable
 fun ManageDecksScreen(
@@ -52,120 +70,224 @@ fun ManageDecksScreen(
     onNavigateToAddDeckScreen: () -> Unit,
 ) {
     val decksUiState by manageDecksViewModel.decksUiStateMutState
+    var selectedDeckForDelete by remember { mutableStateOf<Deck?>(null) }
+
+    fun closeDeckDeleteDialog() {
+        // close the dialog
+        selectedDeckForDelete = null
+    }
+
     Scaffold(
-        topBar = { SimpleTopAppBar(title = "Manage Decks") },
-        bottomBar = bottomNavBar
+        topBar = { SimpleTopAppBar(title = "Manage Decks") }, bottomBar = bottomNavBar
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues)) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = Gray50),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                item {
-                    Row(
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 16.dp, end = 16.dp, top = 16.dp)
-                    ) {
-                        Button(
-                            onClick = onNavigateToAddDeckScreen,
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.height(48.dp)
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.plus),
-                                contentDescription = "",
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Add Deck")
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .background(color = Gray50)
+        ) {
+
+            LaunchedEffect(manageDecksViewModel.deleteDeckActionStatusMutState.value) {
+                when (manageDecksViewModel.deleteDeckActionStatusMutState.value) {
+                    DeleteDeckActionStatus.Success, is DeleteDeckActionStatus.Error -> {
+                        closeDeckDeleteDialog()
+                    }
+                    else -> {}
+                }
+            }
+
+            if (selectedDeckForDelete != null) {
+                CustomDialog(
+                    title = "Delete deck",
+                    description = "Are you sure you want to delete this deck?",
+                    isSubmitting = manageDecksViewModel.deleteDeckActionStatusMutState.value == DeleteDeckActionStatus.Submitting,
+                    onConfirm = {
+                        // trigger the delete
+                        selectedDeckForDelete?.let {
+                            Log.d("Composable::ManageDeckScreen", "deck: ${it}")
+                            manageDecksViewModel.deleteDeck(deck = it)
                         }
+                    },
+                    onCancel = {
+                        selectedDeckForDelete = null
+                    })
+            }
+
+
+            when (decksUiState) {
+                is DecksUiState.Loading -> {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(color = Color.Transparent)
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        LoadingSpinner()
                     }
                 }
 
-                item {
-                    when (decksUiState) {
-                        is DecksUiState.Loading -> {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                LoadingSpinner()
-                            }
-                        }
+                is DecksUiState.Error -> {
+                    ErrorSection(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(color = Color.Transparent),
+                        message = (decksUiState as DecksUiState.Error).message,
+                        onRetry = { manageDecksViewModel.fetchDecks() })
+                }
 
-                        is DecksUiState.Error -> {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(4.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text((decksUiState as DecksUiState.Error).message, fontSize = 16.sp, color = Gray900)
-                                Button(onClick = {}, modifier = Modifier.height(48.dp)) {
-                                    Text("Retry")
+                is DecksUiState.Success -> {
+                    val decks = (decksUiState as DecksUiState.Success).decks
+                    if (decks.isEmpty()) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(color = Color.Transparent),
+                            verticalArrangement = Arrangement.spacedBy(
+                                16.dp, alignment = Alignment.CenterVertically
+                            ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                "You currently have no decks",
+                                fontSize = 20.sp,
+                                color = Gray600,
+                                textAlign = TextAlign.Center
+                            )
+                            CreateDeckButton(onClick = onNavigateToAddDeckScreen)
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(color = Color.Transparent),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            item {
+                                Row(
+                                    horizontalArrangement = Arrangement.End,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(start = 16.dp, end = 16.dp, top = 16.dp)
+                                ) {
+                                    CreateDeckButton(onClick = onNavigateToAddDeckScreen)
                                 }
                             }
-                        }
 
-                        is DecksUiState.Success -> {
-                            val decks = (decksUiState as DecksUiState.Success).decks
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
-                                modifier = Modifier.padding(
-                                    start = 16.dp,
-                                    end = 16.dp,
-                                    bottom = 16.dp
-                                )
-                            ) {
-                                decks.forEach { deck ->
-                                    Card(
-                                        shape = RoundedCornerShape(8.dp),
-                                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable {
-                                                val deckCardsListData =
-                                                    NavDestination.DeckCardsList(
-                                                        selectedDeckId = deck.id
-                                                    )
-                                                onNavigateToDeckCardsListScreen(deckCardsListData)
-                                            },
-                                    ) {
-                                        Row(
+                            item {
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                    modifier = Modifier.padding(
+                                        start = 16.dp, end = 16.dp, bottom = 16.dp
+                                    )
+                                ) {
+                                    decks.forEach { deck ->
+                                        Card(
+                                            shape = RoundedCornerShape(8.dp),
+                                            colors = CardDefaults.cardColors(containerColor = Color.White),
+                                            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .padding(horizontal = 12.dp, vertical = 8.dp),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                .clickable {
+                                                    val deckCardsListData =
+                                                        NavDestination.DeckCardsList(
+                                                            selectedDeckId = deck.id
+                                                        )
+                                                    onNavigateToDeckCardsListScreen(
+                                                        deckCardsListData
+                                                    )
+                                                },
                                         ) {
-                                            Text(
-                                                text = "${deck.cardCount}",
-                                                fontSize = 12.sp,
-                                                color = Gray600
-                                            )
-                                            Text(
-                                                text = deck.name,
-                                                fontSize = 16.sp,
-                                                color = Gray900,
-                                                fontWeight = FontWeight.Medium,
-                                                modifier = Modifier.weight(1F),
-                                                overflow = TextOverflow.Ellipsis,
-                                                maxLines = 1
-                                            )
-                                            IconButton(onClick = {}) {
-                                                Icon(
-                                                    imageVector = Icons.Default.MoreVert,
-                                                    contentDescription = "overflow",
-                                                    tint = Gray900
+                                            Row(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                            ) {
+                                                Text(
+                                                    text = "${deck.cardCount}",
+                                                    fontSize = 12.sp,
+                                                    color = Gray600
                                                 )
+                                                Text(
+                                                    text = deck.name,
+                                                    fontSize = 16.sp,
+                                                    color = Gray900,
+                                                    fontWeight = FontWeight.Medium,
+                                                    modifier = Modifier.weight(1F),
+                                                    overflow = TextOverflow.Ellipsis,
+                                                    maxLines = 1
+                                                )
+
+                                                var expanded by remember { mutableStateOf(false) }
+                                                Box {
+                                                    IconButton(onClick = { expanded = !expanded }) {
+                                                        Icon(
+                                                            imageVector = Icons.Default.MoreVert,
+                                                            contentDescription = "overflow button",
+                                                            tint = Gray900
+                                                        )
+                                                    }
+
+                                                    DropdownMenu(
+                                                        expanded = expanded,
+                                                        onDismissRequest = { expanded = false },
+                                                        containerColor = Gray100,
+                                                        modifier = Modifier.width(200.dp)
+                                                    ) {
+                                                        DropdownMenuItem(text = {
+                                                            Row(
+                                                                horizontalArrangement = Arrangement.spacedBy(
+                                                                    8.dp
+                                                                ),
+                                                                verticalAlignment = Alignment.CenterVertically
+                                                            ) {
+                                                                Icon(
+                                                                    painter = painterResource(
+                                                                        com.pamflet.R.drawable.pencil
+                                                                    ),
+                                                                    contentDescription = "",
+                                                                    modifier = Modifier.size(24.dp),
+                                                                    tint = Gray900
+                                                                )
+                                                                Text(
+                                                                    "Edit",
+                                                                    color = Gray900,
+                                                                    fontSize = 16.sp
+                                                                )
+                                                            }
+
+                                                        }, onClick = {
+                                                            // do something then close the dropdown
+                                                            expanded = false
+                                                        })
+                                                        DropdownMenuItem(text = {
+                                                            Row(
+                                                                horizontalArrangement = Arrangement.spacedBy(
+                                                                    8.dp
+                                                                ),
+                                                                verticalAlignment = Alignment.CenterVertically
+                                                            ) {
+                                                                Icon(
+                                                                    painter = painterResource(
+                                                                        com.pamflet.R.drawable.trash_can
+                                                                    ),
+                                                                    contentDescription = "",
+                                                                    modifier = Modifier.size(24.dp),
+                                                                    tint = Red500
+                                                                )
+                                                                Text(
+                                                                    "Delete",
+                                                                    color = Red500,
+                                                                    fontSize = 16.sp
+                                                                )
+                                                            }
+                                                        }, onClick = {
+                                                            selectedDeckForDelete = deck
+                                                            expanded = false
+                                                        })
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -176,5 +298,21 @@ fun ManageDecksScreen(
                 }
             }
         }
+    }
+}
+
+
+@Composable
+fun CreateDeckButton(onClick: () -> Unit) {
+    Button(
+        onClick, shape = RoundedCornerShape(8.dp), modifier = Modifier.height(48.dp)
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.plus),
+            contentDescription = "",
+            modifier = Modifier.size(18.dp)
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        Text("Add Deck")
     }
 }

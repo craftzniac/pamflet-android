@@ -10,10 +10,10 @@ import com.pamflet.data.repository.FlashcardRepository
 class PamfletApplication : Application() {
     val database by lazy {
         Room.databaseBuilder(
-                applicationContext,
-                PamfletDatabase::class.java,
-                "pamflet.db"
-            ).fallbackToDestructiveMigration(false).build()
+            applicationContext,
+            PamfletDatabase::class.java,
+            "pamflet.db"
+        ).fallbackToDestructiveMigration(false).build()
     }
 
     val flashcardRepository by lazy {
@@ -23,7 +23,6 @@ class PamfletApplication : Application() {
     val deckRepository by lazy {
         DeckRepository(
             deckDao = database.deckDao,
-            flashcardRepository = flashcardRepository
         )
     }
 

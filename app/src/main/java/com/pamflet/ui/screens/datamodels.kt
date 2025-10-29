@@ -1,5 +1,7 @@
 package com.pamflet.ui.screens
 
+import com.pamflet.data.local.entity.DeckEntity
+
 data class Flashcard(
     val id: String,
     var front: String,
@@ -16,4 +18,8 @@ data class Deck(
     val id: String,
     val name: String,
     val cardCount: Int,
-)
+) {
+    fun toDeckEntity(): DeckEntity {
+        return DeckEntity(id = this.id, name = this.name)
+    }
+}

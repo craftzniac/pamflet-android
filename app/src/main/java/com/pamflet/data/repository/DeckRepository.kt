@@ -9,6 +9,11 @@ sealed class CreateDeckResponse {
     data class Error(val message: String) : CreateDeckResponse()
 }
 
+sealed class DeleteDeckResponse {
+    data object Success : DeleteDeckResponse()
+    data class Error(val message: String) : DeleteDeckResponse()
+}
+
 sealed class GetAllDecksResponse {
     data class Success(val decks: List<DeckEntityWithCardCount>) :
         GetAllDecksResponse()
@@ -18,7 +23,6 @@ sealed class GetAllDecksResponse {
 
 class DeckRepository(
     private val deckDao: DeckDao,
-    private val flashcardRepository: FlashcardRepository
 ) {
     suspend fun getDecks(): GetAllDecksResponse {
         return try {
@@ -37,4 +41,14 @@ class DeckRepository(
             CreateDeckResponse.Error("Something went wrong")
         }
     }
+
+    suspend fun deleteDeck(deck: DeckEntity): DeleteDeckResponse {
+        return try {
+            deckDao.deleteOne(deck)
+            DeleteDeckResponse.Success
+        } catch (err: Exception) {
+            DeleteDeckResponse.Error("Couldn't delete deck")
+        }
+    }
+
 }

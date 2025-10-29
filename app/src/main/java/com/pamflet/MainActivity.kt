@@ -144,7 +144,10 @@ fun App(app: PamfletApplication) {
                         // Start flashcard usage screens
                         composable<NavDestination.CardsSlideSetup> { backStackEntry ->
                             val decksSharedViewModel: DecksSharedViewModel = viewModel(
-                                factory = DecksSharedViewModelFactory(deckRepository = app.deckRepository),
+                                factory = DecksSharedViewModelFactory(
+                                    deckRepository = app.deckRepository,
+                                    flashcardRepository = app.flashcardRepository
+                                ),
                                 viewModelStoreOwner = remember(backStackEntry) {
                                     navController.getBackStackEntry(route = NavDestination.Root)
                                 })
@@ -168,7 +171,10 @@ fun App(app: PamfletApplication) {
                         // Start flashcard/deck management screens
                         composable<NavDestination.ManageDecks> { backStackEntry ->
                             val decksSharedViewModel: DecksSharedViewModel = viewModel(
-                                factory = DecksSharedViewModelFactory(app.deckRepository),
+                                factory = DecksSharedViewModelFactory(
+                                    app.deckRepository,
+                                    app.flashcardRepository
+                                ),
                                 viewModelStoreOwner = remember(backStackEntry) {
                                     navController.getBackStackEntry(
                                         route = NavDestination.Root
@@ -198,7 +204,10 @@ fun App(app: PamfletApplication) {
                         composable<NavDestination.AddDeck> {
                             val decksSharedViewModel: DecksSharedViewModel = viewModel(
                                 viewModelStoreOwner = navController.getBackStackEntry(NavDestination.Root),
-                                factory = DecksSharedViewModelFactory(app.deckRepository)
+                                factory = DecksSharedViewModelFactory(
+                                    app.deckRepository,
+                                    app.flashcardRepository
+                                )
                             )
 
                             AddDeckScreen(

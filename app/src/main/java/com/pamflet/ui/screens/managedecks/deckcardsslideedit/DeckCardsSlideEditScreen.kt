@@ -42,6 +42,7 @@ import com.pamflet.ui.components.FlashcardFlipButton
 import com.pamflet.ui.components.TopAppBarTitleDescriptionText
 import com.pamflet.ui.components.topAppBarTitleTextStyle
 import com.pamflet.ui.screens.cardsslide.dummyDecksWithCards
+import com.pamflet.ui.screens.managedecks.components.DeckEditTopAppBar
 import com.pamflet.ui.theme.Gray50
 import com.pamflet.ui.theme.Red500
 
@@ -52,55 +53,8 @@ enum class CardSelectionMode {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DeckEditTopAppBar(
-    deckName: String,
-    deckId: String,   // can be used later for edit and delete buttons
-    onNavigateBack: () -> Unit
-) {
-    TopAppBar(
-        title = {
-            Column(
-                modifier = Modifier.fillMaxHeight(),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "Deck",
-                    style = topAppBarTitleTextStyle
-                )
-                TopAppBarTitleDescriptionText(deckName)
-            }
-        },
-        navigationIcon = {
-            IconButton(onClick = onNavigateBack) {
-                Icon(
-                    painter = painterResource(R.drawable.arrow_left),
-                    contentDescription = "arrow back icon"
-                )
-            }
-        },
-        actions = {
-            IconButton(onClick = {}) {
-                Icon(
-                    painter = painterResource(R.drawable.pencil),
-                    contentDescription = "pencil"
-                )
-            }
-            IconButton(onClick = {}) {
-                Icon(
-                    painter = painterResource(R.drawable.trash_can),
-                    contentDescription = "trash can",
-                    tint = Red500
-                )
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
 fun DeckCardsSlideEditScreen(
-    deckCardsSlideEdit: NavDestination.DeckCardsSlideEdit,
+    deckCardsSlideEditNavData: NavDestination.DeckCardsSlideEdit,
     onNavigateBack: () -> Unit
 ) {
     val deck = dummyDecksWithCards[0]
@@ -116,7 +70,9 @@ fun DeckCardsSlideEditScreen(
     }
 
     Scaffold(
-        topBar = { DeckEditTopAppBar(deckName = deck.name, deckId = deck.id, onNavigateBack) }
+        topBar = {
+//            DeckEditTopAppBar(deckUiState, onNavigateBack)
+        }
     ) { contentPadding ->
         Box(
             modifier = Modifier

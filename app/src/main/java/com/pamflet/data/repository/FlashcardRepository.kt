@@ -2,14 +2,20 @@ package com.pamflet.data.repository
 
 import android.util.Log
 import com.pamflet.data.local.dao.FlashcardDao
+import com.pamflet.data.local.entity.FlashcardEntity
 
 sealed class DeleteAllFromDeckResponse {
     data class Error(val message: String) : DeleteAllFromDeckResponse()
     data object Success : DeleteAllFromDeckResponse()
 }
 
+sealed class GetAllFlashcardsFromDeckResponse {
+    data class Error(val message: String) : GetAllFlashcardsFromDeckResponse()
+    data class Success(val flashcards: List<FlashcardEntity>) : GetAllFlashcardsFromDeckResponse()
+}
+
 class FlashcardRepository(
-    val flashcardDao: FlashcardDao
+    private val flashcardDao: FlashcardDao
 ) {
 
     suspend fun deleteAllFromDeck(deckId: String): DeleteAllFromDeckResponse {
@@ -19,6 +25,15 @@ class FlashcardRepository(
         } catch (ex: Exception) {
             Log.d("FlashcardRepository::deleteAllFromDeck", "exception: ${ex.message}")
             DeleteAllFromDeckResponse.Error(message = "Couldn't delete")
+        }
+    }
+
+    suspend fun getAllFromDeck(deckId: String): GetAllFlashcardsFromDeckResponse {
+        return try {
+            val cards = flashcardDao.getAll(deckId)
+            GetAllFlashcardsFromDeckResponse.Success(cards)
+        } catch (ex: Exception) {
+            GetAllFlashcardsFromDeckResponse.Error(message = "Couldn't get flashcards")
         }
     }
 

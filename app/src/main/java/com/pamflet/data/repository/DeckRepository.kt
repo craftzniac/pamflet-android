@@ -1,5 +1,6 @@
 package com.pamflet.data.repository
 
+import android.util.Log
 import com.pamflet.data.local.dao.DeckDao
 import com.pamflet.data.local.dao.DeckEntityWithCardCount
 import com.pamflet.data.local.entity.DeckEntity
@@ -17,6 +18,11 @@ sealed class DeleteDeckResponse {
 sealed class UpdateDeckResponse {
     data class Success(val message: String) : UpdateDeckResponse()
     data class Error(val message: String) : UpdateDeckResponse()
+}
+
+sealed class GetDeckResponse {
+    data class Success(val deck: DeckEntity?) : GetDeckResponse()
+    data class Error(val message: String) : GetDeckResponse()
 }
 
 sealed class GetAllDecksResponse {
@@ -58,14 +64,21 @@ class DeckRepository(
 
     suspend fun updateDeck(deck: DeckEntity): UpdateDeckResponse {
         return try {
-            val updatedValuesCount = deckDao.updateOne(deck)
-            if (updatedValuesCount == 0) {
-                UpdateDeckResponse.Error("Deck does not exist")
-            } else {
-                UpdateDeckResponse.Success("Deck was successfully updated!")
-            }
+            deckDao.updateOne(deck)
+            UpdateDeckResponse.Success("Deck was successfully updated!")
         } catch (err: Exception) {
             UpdateDeckResponse.Error("Deck couldn't be updated")
+        }
+    }
+
+    suspend fun getDeck(deckId: String): GetDeckResponse {
+        return try {
+            Log.d("DeckRepository::getDeck", "deckId: $deckId")
+            val deckEntity = deckDao.getOne(deckId)
+            GetDeckResponse.Success(deckEntity)
+        } catch (ex: Exception) {
+            Log.d("DeckRepository::getDeck", "error: $ex")
+            GetDeckResponse.Error(message = "Something went wrong, couldn't get deck")
         }
     }
 

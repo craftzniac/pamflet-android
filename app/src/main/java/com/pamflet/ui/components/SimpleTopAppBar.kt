@@ -39,7 +39,9 @@ fun SimpleTopAppBar(
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
         navigationIcon = {
-            if (onNavigateBack != null) { // show back navigation button
+            if (isShowPamfletLogo) {
+                Logo()
+            } else if (onNavigateBack != null) { // show back navigation button
                 IconButton(onClick = onNavigateBack) {
                     Icon(
                         painter = painterResource(com.pamflet.R.drawable.arrow_left),
@@ -53,13 +55,7 @@ fun SimpleTopAppBar(
         title = {
             Row(
                 horizontalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .padding(16.dp)
             ) {
-                if (isShowPamfletLogo) {
-                    Logo()
-                    Spacer(modifier = Modifier.width(width = 16.dp))
-                }
                 Text(text = title, style = topAppBarTitleTextStyle)
             }
         }

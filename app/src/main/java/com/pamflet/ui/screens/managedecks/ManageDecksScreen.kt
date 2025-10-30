@@ -133,7 +133,7 @@ fun ManageDecksScreen(
                             .fillMaxSize()
                             .background(color = Color.Transparent),
                         message = (decksUiState as DecksUiState.Error).message,
-                        onRetry = { manageDecksViewModel.fetchDecks() })
+                        onAction = { manageDecksViewModel.fetchDecks() })
                 }
 
                 is DecksUiState.Success -> {

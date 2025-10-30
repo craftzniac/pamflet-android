@@ -28,111 +28,204 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pamflet.NavDestination
 import com.pamflet.R
-import com.pamflet.ui.screens.cardsslide.dummyDecksWithCards
-import com.pamflet.ui.screens.managedecks.deckcardsslideedit.DeckEditTopAppBar
+import com.pamflet.ui.components.ErrorSection
+import com.pamflet.ui.components.FullscreenLoadingSpinner
+import com.pamflet.ui.screens.managedecks.components.DeckEditTopAppBar
 import com.pamflet.ui.theme.Gray50
+import com.pamflet.ui.theme.Gray600
 import com.pamflet.ui.theme.Gray900
 import com.pamflet.ui.theme.Red500
 
 @Composable
 fun DeckCardsListScreen(
-    deckCardsList: NavDestination.DeckCardsList,
     onNavigateBack: () -> Unit,
-    onNavigateToDeckCardsSlideEditScreen: (data: NavDestination.DeckCardsSlideEdit) -> Unit
+    onNavigateToDeckCardsSlideEditScreen: (data: NavDestination.DeckCardsSlideEdit) -> Unit,
+    deckCardsListViewModel: DeckCardsListViewModel
 ) {
-    val deck = dummyDecksWithCards[0]
-    val cards = deck.cards
-    Scaffold(
-        topBar = { DeckEditTopAppBar(deckName = deck.name, deckId = deck.id, onNavigateBack) }
-    ) { contentPadding ->
+    val deckUiState = deckCardsListViewModel.deckUiState
+    val flashcardsUiState = deckCardsListViewModel.flashcardsUiState
+
+    Scaffold(topBar = { DeckEditTopAppBar(deckUiState, onNavigateBack) }) { contentPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(color = Gray50)
                 .padding(contentPadding),
             contentAlignment = Alignment.Center
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = Gray50),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                item {
-                    Row(
-                        horizontalArrangement = Arrangement.End,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 16.dp, end = 16.dp, top = 16.dp)
-                    ) {
-                        Button(
-                            onClick = {},
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.height(48.dp)
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.plus),
-                                contentDescription = "",
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Add Card")
-                        }
-                    }
+
+            when (deckUiState) {
+                is DeckUiState.Loading -> {
+                    FullscreenLoadingSpinner()
                 }
 
-                item {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-                    ) {
-                        cards.forEachIndexed { index, card ->
-                            Card(
-                                shape = RoundedCornerShape(8.dp),
-                                colors = CardDefaults.cardColors(containerColor = Color.White),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        val deckCardsSlideEdit = NavDestination.DeckCardsSlideEdit(
-                                            selectedCardId = card.id
-                                        )
-                                        onNavigateToDeckCardsSlideEditScreen(deckCardsSlideEdit)
-                                    },
-                            ) {
-                                Row(
+                is DeckUiState.Error -> {
+                    ErrorSection(
+                        isFullscreen = true,
+                        message = "Try again",
+                        detail = deckUiState.message,
+                        onAction = { deckCardsListViewModel.fetchDeck() }
+                    )
+                }
+
+                is DeckUiState.NotFound -> {
+                    ErrorSection(
+                        isFullscreen = true,
+                        message = "404 Deck does not exist",
+                        onAction = onNavigateBack,
+                        actionLabel = "Go back"
+                    )
+                }
+
+                is DeckUiState.Success -> {
+                    when (flashcardsUiState) {
+                        FlashcardsUiState.Loading -> {
+                            FullscreenLoadingSpinner()
+                        }
+
+                        is FlashcardsUiState.Error -> {
+                            ErrorSection(
+                                message = flashcardsUiState.message,
+                                isFullscreen = true,
+                                onAction = { deckCardsListViewModel.fetchFlashcards() }
+                            )
+                        }
+
+                        is FlashcardsUiState.Success -> {
+                            val cards = flashcardsUiState.cards
+                            if (cards.isEmpty()) {
+                                DeckCardsListScreenEmpty()
+                            } else {
+                                LazyColumn(
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 12.dp, vertical = 8.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        .fillMaxSize()
+                                        .background(color = Color.Transparent),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
-                                    Text(
-                                        text = "Card ${index + 1}",
-                                        fontSize = 16.sp,
-                                        color = Gray900,
-                                        fontWeight = FontWeight.Medium,
-                                        modifier = Modifier.weight(1F),
-                                        overflow = TextOverflow.Ellipsis,
-                                        maxLines = 1
-                                    )
-                                    IconButton(onClick = {}) {
-                                        Icon(
-                                            painter = painterResource(R.drawable.trash_can),
-                                            contentDescription = "trash can",
-                                            tint = Red500
-                                        )
+                                    item {
+                                        Row(
+                                            horizontalArrangement = Arrangement.End,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(start = 16.dp, end = 16.dp, top = 16.dp)
+                                        ) {
+                                            CreateFlashcardButton()
+                                        }
                                     }
+
+                                    item {
+                                        Column(
+                                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                                            modifier = Modifier.padding(
+                                                start = 16.dp,
+                                                end = 16.dp,
+                                                bottom = 16.dp
+                                            )
+                                        ) {
+                                            cards.forEachIndexed { index, card ->
+                                                Card(
+                                                    shape = RoundedCornerShape(8.dp),
+                                                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                                                    elevation = CardDefaults.cardElevation(
+                                                        defaultElevation = 2.dp
+                                                    ),
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .clickable {
+                                                            val deckCardsSlideEdit =
+                                                                NavDestination.DeckCardsSlideEdit(
+                                                                    selectedCardId = card.id
+                                                                )
+                                                            onNavigateToDeckCardsSlideEditScreen(
+                                                                deckCardsSlideEdit
+                                                            )
+                                                        },
+                                                ) {
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxWidth()
+                                                            .padding(
+                                                                horizontal = 12.dp,
+                                                                vertical = 8.dp
+                                                            ),
+                                                        verticalAlignment = Alignment.CenterVertically,
+                                                        horizontalArrangement = Arrangement.spacedBy(
+                                                            8.dp
+                                                        )
+                                                    ) {
+                                                        Text(
+                                                            text = "Card ${index + 1}",
+                                                            fontSize = 16.sp,
+                                                            color = Gray900,
+                                                            fontWeight = FontWeight.Medium,
+                                                            modifier = Modifier.weight(1F),
+                                                            overflow = TextOverflow.Ellipsis,
+                                                            maxLines = 1
+                                                        )
+                                                        IconButton(onClick = {}) {
+                                                            Icon(
+                                                                painter = painterResource(R.drawable.trash_can),
+                                                                contentDescription = "trash can",
+                                                                tint = Red500
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
                                 }
                             }
                         }
                     }
                 }
             }
+
         }
+    }
+}
+
+@Composable
+fun CreateFlashcardButton() {
+    Button(
+        onClick = {},
+        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier.height(48.dp)
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.plus),
+            contentDescription = "",
+            modifier = Modifier.size(18.dp)
+        )
+        Spacer(modifier = Modifier.width(4.dp))
+        Text("Add Card")
+    }
+}
+
+@Composable
+fun DeckCardsListScreenEmpty() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.Transparent),
+        verticalArrangement = Arrangement.spacedBy(
+            16.dp, alignment = Alignment.CenterVertically
+        ),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            "There are no cards in this deck",
+            fontSize = 20.sp,
+            color = Gray600,
+            textAlign = TextAlign.Center
+        )
+        CreateFlashcardButton()
     }
 }

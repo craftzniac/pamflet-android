@@ -40,6 +40,8 @@ import com.pamflet.ui.screens.managedecks.addoreditdeck.AddDeckViewModelFactory
 import com.pamflet.ui.screens.managedecks.addoreditdeck.EditDeckScreen
 import com.pamflet.ui.screens.managedecks.addoreditdeck.EditDeckViewModel
 import com.pamflet.ui.screens.managedecks.addoreditdeck.EditDeckViewModelFactory
+import com.pamflet.ui.screens.managedecks.deckcardslist.DeckCardsListViewModel
+import com.pamflet.ui.screens.managedecks.deckcardslist.DeckCardsListViewModelFactory
 import com.pamflet.ui.theme.PamfletTheme
 
 class MainActivity : ComponentActivity() {
@@ -203,10 +205,20 @@ fun App(app: PamfletApplication) {
                             DeckCardsSlideEditScreen(deckCardsSlideEdit, onNavigateBack)
                         }
                         composable<NavDestination.DeckCardsList> { backStackEntry ->
-                            val deckCardsList: NavDestination.DeckCardsList =
+                            val deckCardsListNavData: NavDestination.DeckCardsList =
                                 backStackEntry.toRoute()
+
+                            val deckCardsListViewModel: DeckCardsListViewModel = viewModel(
+                                factory = DeckCardsListViewModelFactory(
+                                    deckCardsListNavData,
+                                    flashcardRepository = app.flashcardRepository,
+                                    deckRepository = app.deckRepository
+                                )
+                            )
                             DeckCardsListScreen(
-                                deckCardsList, onNavigateBack, onNavigateToDeckCardsSlideEditScreen
+                                onNavigateBack,
+                                onNavigateToDeckCardsSlideEditScreen,
+                                deckCardsListViewModel
                             )
                         }
                         composable<NavDestination.AddDeck> {

@@ -68,6 +68,7 @@ fun ManageDecksScreen(
     manageDecksViewModel: ManageDecksViewModel,
     onNavigateToDeckCardsListScreen: (data: NavDestination.DeckCardsList) -> Unit,
     onNavigateToAddDeckScreen: () -> Unit,
+    onNavigateToEditDeckScreen: (data: NavDestination.EditDeck) -> Unit,
 ) {
     val decksUiState by manageDecksViewModel.decksUiStateMutState
     var selectedDeckForDelete by remember { mutableStateOf<Deck?>(null) }
@@ -91,6 +92,7 @@ fun ManageDecksScreen(
                     DeleteDeckActionStatus.Success, is DeleteDeckActionStatus.Error -> {
                         closeDeckDeleteDialog()
                     }
+
                     else -> {}
                 }
             }
@@ -119,8 +121,7 @@ fun ManageDecksScreen(
                         modifier = Modifier
                             .fillMaxSize()
                             .background(color = Color.Transparent)
-                            .padding(16.dp),
-                        contentAlignment = Alignment.Center
+                            .padding(16.dp), contentAlignment = Alignment.Center
                     ) {
                         LoadingSpinner()
                     }
@@ -235,7 +236,15 @@ fun ManageDecksScreen(
                                                         containerColor = Gray100,
                                                         modifier = Modifier.width(200.dp)
                                                     ) {
-                                                        DropdownMenuItem(text = {
+                                                        DropdownMenuItem(onClick = {
+                                                            onNavigateToEditDeckScreen(
+                                                                NavDestination.EditDeck(
+                                                                    deckId = deck.id,
+                                                                    deckName = deck.name
+                                                                )
+                                                            )
+                                                            expanded = false
+                                                        }, text = {
                                                             Row(
                                                                 horizontalArrangement = Arrangement.spacedBy(
                                                                     8.dp
@@ -256,12 +265,11 @@ fun ManageDecksScreen(
                                                                     fontSize = 16.sp
                                                                 )
                                                             }
-
-                                                        }, onClick = {
-                                                            // do something then close the dropdown
-                                                            expanded = false
                                                         })
-                                                        DropdownMenuItem(text = {
+                                                        DropdownMenuItem(onClick = {
+                                                            selectedDeckForDelete = deck
+                                                            expanded = false
+                                                        }, text = {
                                                             Row(
                                                                 horizontalArrangement = Arrangement.spacedBy(
                                                                     8.dp
@@ -282,9 +290,6 @@ fun ManageDecksScreen(
                                                                     fontSize = 16.sp
                                                                 )
                                                             }
-                                                        }, onClick = {
-                                                            selectedDeckForDelete = deck
-                                                            expanded = false
                                                         })
                                                     }
                                                 }

@@ -9,6 +9,7 @@ import com.pamflet.data.repository.DeleteAllFromDeckResponse
 import com.pamflet.data.repository.DeleteDeckResponse
 import com.pamflet.data.repository.FlashcardRepository
 import com.pamflet.data.repository.GetAllDecksResponse
+import com.pamflet.data.repository.UpdateDeckResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -37,6 +38,14 @@ sealed class DeleteDeckActionStatus {
     data class Error(val message: String) : DeleteDeckActionStatus()
 }
 
+sealed class UpdateDeckActionStatus {
+    object Submitting : UpdateDeckActionStatus()
+    object NotStarted : UpdateDeckActionStatus()
+    data class Success(val message: String) : UpdateDeckActionStatus()
+    data class Error(val message: String) : UpdateDeckActionStatus()
+}
+
+
 class DecksSharedViewModel(
     val deckRepository: DeckRepository,
     val flashcardRepository: FlashcardRepository
@@ -47,6 +56,11 @@ class DecksSharedViewModel(
 
     var decksUiStateMutState = mutableStateOf<DecksUiState>(
         DecksUiState.Loading
+    )
+        private set
+
+    var updateDeckActionStatusMutState = mutableStateOf<UpdateDeckActionStatus>(
+        UpdateDeckActionStatus.NotStarted
     )
         private set
 
@@ -108,6 +122,27 @@ class DecksSharedViewModel(
                             deleteDeckActionStatusMutState.value = DeleteDeckActionStatus.Success
                         }
                     }
+                }
+            }
+        }
+    }
+
+    fun updateDeck(deck: Deck) {
+        viewModelScope.launch {
+            updateDeckActionStatusMutState.value = UpdateDeckActionStatus.Submitting
+            val response = withContext(Dispatchers.IO) {
+                deckRepository.updateDeck(deck.toDeckEntity())
+            }
+            when (response) {
+                is UpdateDeckResponse.Error -> {
+                    updateDeckActionStatusMutState.value =
+                        UpdateDeckActionStatus.Error(message = response.message)
+                }
+
+                is UpdateDeckResponse.Success -> {
+                    fetchDecks()
+                    updateDeckActionStatusMutState.value =
+                        UpdateDeckActionStatus.Success(message = response.message)
                 }
             }
         }

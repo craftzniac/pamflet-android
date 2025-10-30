@@ -1,6 +1,7 @@
 package com.pamflet.ui.screens
 
 import com.pamflet.data.local.entity.DeckEntity
+import kotlinx.serialization.Serializable
 
 data class Flashcard(
     val id: String,

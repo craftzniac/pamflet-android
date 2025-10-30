@@ -14,6 +14,11 @@ sealed class DeleteDeckResponse {
     data class Error(val message: String) : DeleteDeckResponse()
 }
 
+sealed class UpdateDeckResponse {
+    data class Success(val message: String) : UpdateDeckResponse()
+    data class Error(val message: String) : UpdateDeckResponse()
+}
+
 sealed class GetAllDecksResponse {
     data class Success(val decks: List<DeckEntityWithCardCount>) :
         GetAllDecksResponse()
@@ -48,6 +53,19 @@ class DeckRepository(
             DeleteDeckResponse.Success
         } catch (err: Exception) {
             DeleteDeckResponse.Error("Couldn't delete deck")
+        }
+    }
+
+    suspend fun updateDeck(deck: DeckEntity): UpdateDeckResponse {
+        return try {
+            val updatedValuesCount = deckDao.updateOne(deck)
+            if (updatedValuesCount == 0) {
+                UpdateDeckResponse.Error("Deck does not exist")
+            } else {
+                UpdateDeckResponse.Success("Deck was successfully updated!")
+            }
+        } catch (err: Exception) {
+            UpdateDeckResponse.Error("Deck couldn't be updated")
         }
     }
 

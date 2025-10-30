@@ -11,7 +11,6 @@ import com.pamflet.ui.screens.DecksSharedViewModel
 
 class ManageDecksViewModel(
     val decksSharedViewModel: DecksSharedViewModel,
-    val deckRepository: DeckRepository,
 ) : ViewModel() {
     val decksUiStateMutState = decksSharedViewModel.decksUiStateMutState
     val deleteDeckActionStatusMutState = decksSharedViewModel.deleteDeckActionStatusMutState
@@ -23,13 +22,11 @@ class ManageDecksViewModel(
 
 @Suppress("UNCHECKED_CAST")
 class ManageDecksViewModelFactory(
-    val decksSharedViewModel: DecksSharedViewModel,
-    val deckRepository: DeckRepository,
+    val decksSharedViewModel: DecksSharedViewModel
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return ManageDecksViewModel(
-            decksSharedViewModel,
-            deckRepository
+            decksSharedViewModel
         ) as T
     }
 }

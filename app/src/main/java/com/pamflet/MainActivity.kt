@@ -37,6 +37,9 @@ import com.pamflet.ui.screens.cardsslidesetup.CardsSlideSetupViewModelFactory
 import com.pamflet.ui.screens.managedecks.ManageDecksViewModelFactory
 import com.pamflet.ui.screens.managedecks.addoreditdeck.AddDeckScreen
 import com.pamflet.ui.screens.managedecks.addoreditdeck.AddDeckViewModelFactory
+import com.pamflet.ui.screens.managedecks.addoreditdeck.EditDeckScreen
+import com.pamflet.ui.screens.managedecks.addoreditdeck.EditDeckViewModel
+import com.pamflet.ui.screens.managedecks.addoreditdeck.EditDeckViewModelFactory
 import com.pamflet.ui.theme.PamfletTheme
 
 class MainActivity : ComponentActivity() {
@@ -103,6 +106,10 @@ fun App(app: PamfletApplication) {
 
                 val onNavigateToAddDeckScreen =
                     { navController.navigate(route = NavDestination.AddDeck) }
+
+                val onNavigateToEditDeckScreen = { data: NavDestination.EditDeck ->
+                    navController.navigate(route = data)
+                }
 
                 val onNavigateBack: () -> Unit = {
                     navController.popBackStack()
@@ -183,10 +190,11 @@ fun App(app: PamfletApplication) {
 
                             ManageDecksScreen(
                                 bottomNavBar, manageDecksViewModel = viewModel(
-                                    factory = ManageDecksViewModelFactory(
-                                        decksSharedViewModel, deckRepository = app.deckRepository
-                                    )
-                                ), onNavigateToDeckCardsListScreen, onNavigateToAddDeckScreen
+                                    factory = ManageDecksViewModelFactory(decksSharedViewModel)
+                                ),
+                                onNavigateToDeckCardsListScreen,
+                                onNavigateToAddDeckScreen,
+                                onNavigateToEditDeckScreen
                             )
                         }
                         composable<NavDestination.DeckCardsSlideEdit> { backStackEntry ->
@@ -218,6 +226,24 @@ fun App(app: PamfletApplication) {
                                     )
                                 )
                             )
+                        }
+                        composable<NavDestination.EditDeck> { backStackEntry ->
+                            val decksSharedViewModel: DecksSharedViewModel = viewModel(
+                                factory = DecksSharedViewModelFactory(
+                                    deckRepository = app.deckRepository,
+                                    flashcardRepository = app.flashcardRepository
+                                ),
+                                viewModelStoreOwner = navController.getBackStackEntry(NavDestination.Root)
+                            )
+
+                            val editDeckData: NavDestination.EditDeck = backStackEntry.toRoute()
+                            val editDeckViewModel: EditDeckViewModel = viewModel(
+                                factory = EditDeckViewModelFactory(
+                                    editDeckData = editDeckData,
+                                    decksSharedViewModel
+                                )
+                            )
+                            EditDeckScreen(onNavigateBack, editDeckViewModel)
                         }
                         // End flashcard/deck management screens
 

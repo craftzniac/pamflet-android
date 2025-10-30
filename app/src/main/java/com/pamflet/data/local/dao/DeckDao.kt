@@ -4,11 +4,14 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.pamflet.data.local.entity.DeckEntity
 import com.pamflet.data.local.entity.FlashcardEntity
 
 data class DeckEntityWithCardCount(val id: String, val name: String, val cardCount: Int)
 data class DeckEntityWithCards(val id: String, val name: String, val cards: List<FlashcardEntity>)
+
+typealias UpdatedValuesCount = Int
 
 @Dao
 interface DeckDao {
@@ -29,4 +32,7 @@ interface DeckDao {
 
     @Insert
     suspend fun createOne(deck: DeckEntity): Long
+
+    @Update
+    suspend fun updateOne(deck: DeckEntity): UpdatedValuesCount
 }

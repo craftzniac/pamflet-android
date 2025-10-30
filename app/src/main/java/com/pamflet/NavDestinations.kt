@@ -1,5 +1,6 @@
 package com.pamflet
 
+import com.pamflet.ui.screens.Deck
 import kotlinx.serialization.Serializable
 
 interface Routable {
@@ -79,5 +80,8 @@ sealed class NavDestination : Routable {
 
     @Serializable
     data object AddDeck
+
+    @Serializable
+    data class EditDeck(val deckId: String, val deckName: String)
 }
 

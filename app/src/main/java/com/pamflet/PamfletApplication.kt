@@ -3,9 +3,9 @@ package com.pamflet
 import android.app.Application
 import android.util.Log
 import androidx.room.Room
-import com.pamflet.data.local.PamfletDatabase
-import com.pamflet.data.repository.DeckRepository
-import com.pamflet.data.repository.FlashcardRepository
+import com.pamflet.core.data.local.PamfletDatabase
+import com.pamflet.core.data.repository.DeckRepository
+import com.pamflet.core.data.repository.FlashcardRepository
 
 class PamfletApplication : Application() {
     val database by lazy {

@@ -2,6 +2,7 @@ package com.pamflet.shared.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -33,6 +34,7 @@ fun SimpleTopAppBar(
     title: String,
     isShowPamfletLogo: Boolean = false,
     onNavigateBack: (() -> Unit)? = null,
+    actions: @Composable RowScope.() -> Unit = {}
 ) {
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White),
@@ -56,6 +58,7 @@ fun SimpleTopAppBar(
             ) {
                 Text(text = title, style = topAppBarTitleTextStyle)
             }
-        }
+        },
+        actions = actions
     )
 }

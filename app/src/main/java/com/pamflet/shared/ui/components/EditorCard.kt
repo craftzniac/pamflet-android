@@ -18,7 +18,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -93,27 +92,28 @@ fun FlippableCard(
 }
 
 @Composable
-fun EditorCard(cardMutState: MutableState<Flashcard>, isFlipped: Boolean) {
+fun EditorCard(
+    card: Flashcard,
+    updateCardFront: (update: String) -> Unit,
+    updateCardBack: (update: String) -> Unit,
+    isFlipped: Boolean
+) {
     FlippableCard(
         isFlipped = isFlipped,
         isOutlinedCard = true,
         front = {
             Editor(
                 cardFace = CardFace.Front,
-                content = cardMutState.value.front,
-                setContent = { newValue ->
-                    cardMutState.value = cardMutState.value.copy(front = newValue)
-                }
+                content = card.front,
+                setContent = { newValue -> updateCardFront(newValue) }
             )
         },
         back = { modifier ->
             Editor(
                 modifier = modifier,
                 cardFace = CardFace.Back,
-                content = cardMutState.value.back,
-                setContent = { newValue ->
-                    cardMutState.value = cardMutState.value.copy(back = newValue)
-                }
+                content = card.back,
+                setContent = { newValue -> updateCardBack(newValue) }
             )
         }
     )
@@ -139,9 +139,11 @@ fun Editor(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 WhichFaceChip(cardFace = cardFace)
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                ) {
                     if (content.isEmpty()) {
                         Text("Write something ...", fontSize = 20.sp, color = Color.Gray)
                     }

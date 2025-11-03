@@ -12,7 +12,6 @@ import com.pamflet.core.data.repository.GetAllDecksResponse
 import com.pamflet.core.data.repository.UpdateDeckResponse
 import com.pamflet.core.domain.Deck
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -73,7 +72,6 @@ class SharedDecksViewModel(
         viewModelScope.launch {
             decksUiStateMutState.value = DecksUiState.Loading
             val response = withContext(Dispatchers.IO) {
-                delay(2000)
                 deckRepository.getDecks()
             }
             decksUiStateMutState.value = when (response) {
@@ -99,7 +97,6 @@ class SharedDecksViewModel(
         viewModelScope.launch {
             deleteDeckActionStatusMutState.value = DeleteDeckActionStatus.Submitting
             val response = withContext(Dispatchers.IO) {
-                delay(2000)
                 flashcardRepository.deleteAllFromDeck(deck.id)
             }
             when (response) {

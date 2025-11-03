@@ -61,7 +61,7 @@ import com.pamflet.shared.viewmodel.DeleteDeckActionStatus
 fun ManageDecksScreen(
     bottomNavBar: @Composable () -> Unit,
     manageDecksViewModel: ManageDecksViewModel,
-    onNavigateToDeckCardsListScreen: (data: NavDestination.DeckCardsList) -> Unit,
+    onNavigateToDeckCardsListScreen: (data: NavDestination.CardList) -> Unit,
     onNavigateToAddDeckScreen: () -> Unit,
     onNavigateToEditDeckScreen: (data: NavDestination.EditDeck) -> Unit,
 ) {
@@ -185,7 +185,7 @@ fun ManageDecksScreen(
                                                 .fillMaxWidth()
                                                 .clickable {
                                                     val deckCardsListData =
-                                                        NavDestination.DeckCardsList(
+                                                        NavDestination.CardList(
                                                             selectedDeckId = deck.id
                                                         )
                                                     onNavigateToDeckCardsListScreen(

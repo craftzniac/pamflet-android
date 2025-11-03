@@ -2,6 +2,7 @@ package com.pamflet.core.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Delete
+import androidx.room.Insert
 import androidx.room.Query
 import com.pamflet.core.data.local.entity.FlashcardEntity
 
@@ -12,6 +13,9 @@ interface FlashcardDao {
 
     @Query("SELECT * FROM flashcard_table WHERE flashcard_table.deck_id = :deckId")
     suspend fun getAll(deckId: String): List<FlashcardEntity>
+
+    @Insert
+    suspend fun insertOne(flashcard: FlashcardEntity)
 
     @Delete
     suspend fun delete(flashcard: FlashcardEntity)

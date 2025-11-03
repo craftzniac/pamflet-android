@@ -5,7 +5,7 @@ import com.pamflet.core.domain.Flashcard
 import com.pamflet.shared.ui.renderer.Renderer
 
 @Composable
-fun FlashcardCard(card: Flashcard, isFlipped: Boolean) {
+fun PreviewCard(card: Flashcard, isFlipped: Boolean) {
     FlippableCard(
         isFlipped = isFlipped,
         front = {

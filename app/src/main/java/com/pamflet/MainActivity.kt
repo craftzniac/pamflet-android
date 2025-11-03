@@ -36,15 +36,6 @@ fun App(app: PamfletApplication) {
     PamfletTheme(
         darkTheme = false
     ) {
-        val snackBarHostState = remember { SnackbarHostState() }
-        Scaffold(snackbarHost = { SnackbarHost(snackBarHostState) }, topBar = {}) {
-            @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                AppNavigation(app)
-            }
-        }
+        AppNavigation(app)
     }
 }

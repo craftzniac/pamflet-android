@@ -1,8 +1,19 @@
 package com.pamflet.navigation
 
+import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -10,15 +21,21 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.createGraph
 import androidx.navigation.toRoute
 import com.pamflet.PamfletApplication
+import com.pamflet.core.data.repository.FlashcardRepository
 import com.pamflet.shared.ui.components.BottomNavBar
 import com.pamflet.shared.viewmodel.SharedDecksViewModel
 import com.pamflet.shared.viewmodel.SharedDecksViewModelFactory
 import com.pamflet.features.auth.ui.LoginScreen
 import com.pamflet.features.auth.ui.SignupScreen
-import com.pamflet.features.deck.card.ui.DeckCardsListScreen
-import com.pamflet.features.deck.card.ui.DeckCardsListViewModel
-import com.pamflet.features.deck.card.ui.DeckCardsListViewModelFactory
+import com.pamflet.features.deck.card.ui.AddCardScreen
+import com.pamflet.features.deck.card.ui.AddCardViewModel
+import com.pamflet.features.deck.card.ui.AddCardViewModelFactory
+import com.pamflet.features.deck.card.ui.CardListScreen
+import com.pamflet.features.deck.card.ui.CardListViewModel
+import com.pamflet.features.deck.card.ui.DeckCardListViewModelFactory
 import com.pamflet.features.deck.card.ui.EditCardScreen
+import com.pamflet.features.deck.card.ui.EditCardViewModel
+import com.pamflet.features.deck.card.ui.EditCardViewModelFactory
 import com.pamflet.features.deck.ui.AddDeckScreen
 import com.pamflet.features.deck.ui.AddDeckViewModelFactory
 import com.pamflet.features.deck.ui.EditDeckScreen
@@ -30,203 +47,291 @@ import com.pamflet.features.profile.ui.ProfileScreen
 import com.pamflet.features.review.ui.ReviewScreen
 import com.pamflet.features.review.ui.SetupReviewScreen
 import com.pamflet.features.review.ui.SetupReviewViewModelFactory
+import com.pamflet.shared.viewmodel.SharedCardListViewModel
+import com.pamflet.shared.viewmodel.SharedCardListViewModelFactory
+import com.pamflet.shared.viewmodel.SharedUiEventViewModel
+
 
 @Composable
+fun getSharedDecksViewModel(
+    app: PamfletApplication,
+    backStackEntry: NavBackStackEntry,
+    navController: NavController
+): SharedDecksViewModel {
+    val owner = remember(backStackEntry) { navController.getBackStackEntry(NavDestination.Root) }
+    return viewModel(
+        factory = SharedDecksViewModelFactory(
+            deckRepository = app.deckRepository,
+            flashcardRepository = app.flashcardRepository
+        ),
+        viewModelStoreOwner = owner
+    ) as SharedDecksViewModel
+}
+
+@Composable
+fun getSharedCardListViewModel(
+    flashcardRepository: FlashcardRepository,
+    deckId: String,
+    backStackEntry: NavBackStackEntry,
+    navController: NavController
+): SharedCardListViewModel {
+    val owner = remember(backStackEntry) { navController.getBackStackEntry(NavDestination.Root) }
+    return viewModel(
+        factory = SharedCardListViewModelFactory(flashcardRepository),
+        viewModelStoreOwner = owner
+    ) as SharedCardListViewModel
+}
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
 fun AppNavigation(app: PamfletApplication) {
-    val navController = rememberNavController()
+    val snackBarHostState = remember { SnackbarHostState() }
+    val sharedUiEventViewModel: SharedUiEventViewModel = viewModel()
 
-    val currentSelectedRoute =
-        navController.currentBackStackEntryAsState().value?.destination?.route
-    val onNavigateToProfileScreen = {
-        navController.navigate(route = NavDestination.Profile)
-    }
-
-    val onNavigateToCardsSlideSetupScreen = {
-        navController.navigate(route = NavDestination.SetupReview)
-    }
-
-    val onNavigateToManageDecksScreen = {
-        navController.navigate(route = NavDestination.ManageDecks)
-    }
-
-    val onNavigateToReviewScreen = { data: NavDestination.Review ->
-        navController.navigate(
-            route = NavDestination.Review(
-                selectedDeckIds = data.selectedDeckIds,
-                maxNumberOfCards = data.maxNumberOfCards,
-                isShuffleCards = data.isShuffleCards
+    LaunchedEffect(sharedUiEventViewModel.snackBarMessage) {
+        if (sharedUiEventViewModel.snackBarMessage.isNotEmpty()) {
+            snackBarHostState.showSnackbar(
+                sharedUiEventViewModel.snackBarMessage
             )
-        )
-    }
-
-    val onNavigateToEditCardScreen =
-        { data: NavDestination.EditCard ->
-            navController.navigate(route = data)
+            sharedUiEventViewModel.clearSnackBarMessage()
         }
-
-    val onNavigateToDeckCardsListScreen = { data: NavDestination.DeckCardsList ->
-        navController.navigate(route = data)
     }
 
-    val onNavigateToAddDeckScreen =
-        { navController.navigate(route = NavDestination.AddDeck) }
-
-    val onNavigateToEditDeckScreen = { data: NavDestination.EditDeck ->
-        navController.navigate(route = data)
-    }
-
-    val onNavigateBack: () -> Unit = {
-        navController.popBackStack()
-    }
-
-    val bottomNavBar = @Composable {
-        BottomNavBar(
-            onNavigateToCardsSlideSetupScreen,
-            onNavigateToManageDecksScreen,
-            onNavigateToProfileScreen,
-            currentSelectedRoute
-        )
-    }
-
-
-    val navGraph = remember(navController) {
-        navController.createGraph(
-            startDestination = NavDestination.Login, route = NavDestination.Root::class
+    Scaffold(snackbarHost = { SnackbarHost(snackBarHostState) }, topBar = {}) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
         ) {
-            // Start Auth com.pamflet.ui.features
-            composable<NavDestination.Login> {
-                LoginScreen(
-                    onNavigateToSignupScreen = {
-                        navController.navigate(route = NavDestination.Signup)
-                    },
+            val navController = rememberNavController()
+
+            val currentSelectedRoute =
+                navController.currentBackStackEntryAsState().value?.destination?.route
+            val onNavigateToProfileScreen = {
+                navController.navigate(route = NavDestination.Profile)
+            }
+
+            val onNavigateToCardsSlideSetupScreen = {
+                navController.navigate(route = NavDestination.SetupReview)
+            }
+
+            val onNavigateToManageDecksScreen = {
+                navController.navigate(route = NavDestination.ManageDecks)
+            }
+
+            val onNavigateToReviewScreen = { data: NavDestination.Review ->
+                navController.navigate(
+                    route = NavDestination.Review(
+                        selectedDeckIds = data.selectedDeckIds,
+                        maxNumberOfCards = data.maxNumberOfCards,
+                        isShuffleCards = data.isShuffleCards
+                    )
+                )
+            }
+
+            val onNavigateToEditCardScreen =
+                { data: NavDestination.EditCard ->
+                    navController.navigate(route = data)
+                }
+
+            val onNavigateToDeckCardsListScreen = { data: NavDestination.CardList ->
+                navController.navigate(route = data)
+            }
+
+            val onNavigateToAddDeckScreen =
+                { navController.navigate(route = NavDestination.AddDeck) }
+
+            val onNavigateToEditDeckScreen = { data: NavDestination.EditDeck ->
+                navController.navigate(route = data)
+            }
+
+            val onNavigateToAddCardScreen = { data: NavDestination.AddCard ->
+                navController.navigate(route = data)
+            }
+
+            val onNavigateBack: () -> Unit = {
+                navController.popBackStack()
+            }
+
+            val bottomNavBar = @Composable {
+                BottomNavBar(
                     onNavigateToCardsSlideSetupScreen,
+                    onNavigateToManageDecksScreen,
+                    onNavigateToProfileScreen,
+                    currentSelectedRoute
                 )
             }
-            composable<NavDestination.Signup> {
-                SignupScreen(
-                    onNavigateToLoginScreen = {
-                        navController.navigate(route = NavDestination.Login)
-                    }, onNavigateToManageDecksScreen
-                )
-            }
-            // End Auth com.pamflet.ui.features
 
 
-            // Start flashcard usage com.pamflet.ui.features
-            composable<NavDestination.SetupReview> { backStackEntry ->
-                val sharedDecksViewModel: SharedDecksViewModel = viewModel(
-                    factory = SharedDecksViewModelFactory(
-                        deckRepository = app.deckRepository,
-                        flashcardRepository = app.flashcardRepository
-                    ),
-                    viewModelStoreOwner = remember(backStackEntry) {
-                        navController.getBackStackEntry(route = NavDestination.Root)
-                    })
-                SetupReviewScreen(
-                    setupReviewViewModel = viewModel(
-                        factory = SetupReviewViewModelFactory(
-                            sharedDecksViewModel, deckRepository = app.deckRepository
+            val navGraph = remember(navController) {
+                navController.createGraph(
+                    startDestination = NavDestination.Login, route = NavDestination.Root::class
+                ) {
+                    // Start Auth features
+                    composable<NavDestination.Login> {
+                        LoginScreen(
+                            onNavigateToSignupScreen = {
+                                navController.navigate(route = NavDestination.Signup)
+                            },
+                            onNavigateToCardsSlideSetupScreen,
                         )
-                    ), bottomNavBar, onNavigateToReviewScreen
-                )
-            }
-            composable<NavDestination.Review> { backStackEntry ->
-                val reviewNavData: NavDestination.Review = backStackEntry.toRoute()
-                ReviewScreen(
-                    reviewNavData, onNavigateBack, onNavigateToEditCardScreen
-                )
-            }
-            // End flashcard usage com.pamflet.ui.features
-
-
-            // Start flashcard/deck management com.pamflet.ui.features
-            composable<NavDestination.ManageDecks> { backStackEntry ->
-                val sharedDecksViewModel: SharedDecksViewModel = viewModel(
-                    factory = SharedDecksViewModelFactory(
-                        app.deckRepository,
-                        app.flashcardRepository
-                    ),
-                    viewModelStoreOwner = remember(backStackEntry) {
-                        navController.getBackStackEntry(
-                            route = NavDestination.Root
+                    }
+                    composable<NavDestination.Signup> {
+                        SignupScreen(
+                            onNavigateToLoginScreen = {
+                                navController.navigate(route = NavDestination.Login)
+                            }, onNavigateToManageDecksScreen
                         )
-                    })
+                    }
+                    // End Auth features
 
-                ManageDecksScreen(
-                    bottomNavBar, manageDecksViewModel = viewModel(
-                        factory = ManageDecksViewModelFactory(sharedDecksViewModel)
-                    ),
-                    onNavigateToDeckCardsListScreen,
-                    onNavigateToAddDeckScreen,
-                    onNavigateToEditDeckScreen
-                )
-            }
-            composable<NavDestination.EditCard> { backStackEntry ->
-                val editCardNavData: NavDestination.EditCard =
-                    backStackEntry.toRoute()
-                EditCardScreen(editCardNavData, onNavigateBack)
-            }
-            composable<NavDestination.DeckCardsList> { backStackEntry ->
-                val deckCardsListNavData: NavDestination.DeckCardsList =
-                    backStackEntry.toRoute()
 
-                val deckCardsListViewModel: DeckCardsListViewModel = viewModel(
-                    factory = DeckCardsListViewModelFactory(
-                        deckCardsListNavData,
-                        flashcardRepository = app.flashcardRepository,
-                        deckRepository = app.deckRepository
-                    )
-                )
-                DeckCardsListScreen(
-                    onNavigateBack,
-                    onNavigateToEditCardScreen,
-                    deckCardsListViewModel
-                )
-            }
-            composable<NavDestination.AddDeck> {
-                val sharedDecksViewModel: SharedDecksViewModel = viewModel(
-                    viewModelStoreOwner = navController.getBackStackEntry(NavDestination.Root),
-                    factory = SharedDecksViewModelFactory(
-                        app.deckRepository,
-                        app.flashcardRepository
-                    )
-                )
-
-                AddDeckScreen(
-                    onNavigateBack, addDeckViewModel = viewModel(
-                        factory = AddDeckViewModelFactory(
-                            sharedDecksViewModel = sharedDecksViewModel,
-                            deckRepository = app.deckRepository
+                    // Start flashcard usage features
+                    composable<NavDestination.SetupReview> { backStackEntry ->
+                        SetupReviewScreen(
+                            setupReviewViewModel = viewModel(
+                                factory = SetupReviewViewModelFactory(
+                                    sharedDecksViewModel = getSharedDecksViewModel(
+                                        app,
+                                        backStackEntry,
+                                        navController
+                                    ),
+                                    deckRepository = app.deckRepository
+                                )
+                            ), bottomNavBar, onNavigateToReviewScreen
                         )
-                    )
-                )
+                    }
+                    composable<NavDestination.Review> { backStackEntry ->
+                        val reviewNavData: NavDestination.Review = backStackEntry.toRoute()
+                        ReviewScreen(
+                            reviewNavData, onNavigateBack, onNavigateToEditCardScreen
+                        )
+                    }
+                    // End flashcard usage features
+
+
+                    // Start flashcard/deck management features
+                    composable<NavDestination.ManageDecks> { backStackEntry ->
+                        ManageDecksScreen(
+                            bottomNavBar, manageDecksViewModel = viewModel(
+                                factory = ManageDecksViewModelFactory(
+                                    sharedDecksViewModel = getSharedDecksViewModel(
+                                        app,
+                                        backStackEntry,
+                                        navController
+                                    ),
+                                )
+                            ),
+                            onNavigateToDeckCardsListScreen,
+                            onNavigateToAddDeckScreen,
+                            onNavigateToEditDeckScreen
+                        )
+                    }
+                    composable<NavDestination.EditCard> { backStackEntry ->
+                        val editCardNavData: NavDestination.EditCard =
+                            backStackEntry.toRoute()
+                        val editCardViewModel: EditCardViewModel = viewModel(
+                            factory = EditCardViewModelFactory(
+                                editCardNavData,
+                                flashcardRepository = app.flashcardRepository,
+                                sharedDecksViewModel = getSharedDecksViewModel(
+                                    app,
+                                    backStackEntry,
+                                    navController
+                                ),
+                            )
+                        )
+                        EditCardScreen(editCardViewModel, onNavigateBack)
+                    }
+                    composable<NavDestination.CardList> { backStackEntry ->
+                        val cardListNavData: NavDestination.CardList =
+                            backStackEntry.toRoute()
+
+                        val sharedCardListViewModel: SharedCardListViewModel =
+                            getSharedCardListViewModel(
+                                flashcardRepository = app.flashcardRepository,
+                                deckId = cardListNavData.selectedDeckId,
+                                backStackEntry,
+                                navController
+                            )
+
+                        val cardListViewModel: CardListViewModel = viewModel(
+                            factory = DeckCardListViewModelFactory(
+                                flashcardRepository = app.flashcardRepository,
+                                deckRepository = app.deckRepository,
+                                sharedCardListViewModel
+                            )
+                        )
+
+                        CardListScreen(
+                            cardListNavData,
+                            onNavigateBack,
+                            onNavigateToAddCardScreen,
+                            onNavigateToEditCardScreen,
+                            cardListViewModel
+                        )
+                    }
+                    composable<NavDestination.AddDeck> { backStackEntry ->
+                        AddDeckScreen(
+                            onNavigateBack, addDeckViewModel = viewModel(
+                                factory = AddDeckViewModelFactory(
+                                    sharedDecksViewModel = getSharedDecksViewModel(
+                                        app,
+                                        backStackEntry,
+                                        navController
+                                    ),
+                                    deckRepository = app.deckRepository
+                                )
+                            )
+                        )
+                    }
+                    composable<NavDestination.EditDeck> { backStackEntry ->
+                        val editDeckData: NavDestination.EditDeck = backStackEntry.toRoute()
+                        val editDeckViewModel: EditDeckViewModel = viewModel(
+                            factory = EditDeckViewModelFactory(
+                                editDeckData = editDeckData,
+                                sharedDecksViewModel = getSharedDecksViewModel(
+                                    app,
+                                    backStackEntry,
+                                    navController
+                                ),
+                            )
+                        )
+                        EditDeckScreen(onNavigateBack, editDeckViewModel)
+                    }
+                    composable<NavDestination.AddCard> { backStackEntry ->
+                        val sharedCardListViewModel: SharedCardListViewModel =
+                            getSharedCardListViewModel(
+                                flashcardRepository = app.flashcardRepository,
+                                deckId = "",     // WARN: might have to come back to this because deckId being "" might introduce unexpected behavior
+                                backStackEntry,
+                                navController
+                            )
+
+                        val addCardViewModel: AddCardViewModel = viewModel(
+                            factory = AddCardViewModelFactory(
+                                flashcardRepository = app.flashcardRepository,
+                                sharedDecksViewModel = getSharedDecksViewModel(
+                                    app,
+                                    backStackEntry,
+                                    navController
+                                ),
+                                sharedUiEventViewModel = sharedUiEventViewModel,
+                                refetchCards = { sharedCardListViewModel.refetchCards() }
+                            )
+                        )
+                        AddCardScreen(addCardViewModel, onNavigateBack, onNavigateToAddDeckScreen)
+                    }
+                    // End flashcard/deck management features
+
+
+                    // Start user profile management
+                    composable<NavDestination.Profile> { ProfileScreen(bottomNavBar) }
+                    // End user profile management
+                }
             }
-            composable<NavDestination.EditDeck> { backStackEntry ->
-                val sharedDecksViewModel: SharedDecksViewModel = viewModel(
-                    factory = SharedDecksViewModelFactory(
-                        deckRepository = app.deckRepository,
-                        flashcardRepository = app.flashcardRepository
-                    ),
-                    viewModelStoreOwner = navController.getBackStackEntry(NavDestination.Root)
-                )
 
-                val editDeckData: NavDestination.EditDeck = backStackEntry.toRoute()
-                val editDeckViewModel: EditDeckViewModel = viewModel(
-                    factory = EditDeckViewModelFactory(
-                        editDeckData = editDeckData,
-                        sharedDecksViewModel
-                    )
-                )
-                EditDeckScreen(onNavigateBack, editDeckViewModel)
-            }
-            // End flashcard/deck management com.pamflet.ui.features
-
-
-            // Start user profile management
-            composable<NavDestination.Profile> { ProfileScreen(bottomNavBar) }
-            // End user profile management
+            NavHost(navController = navController, graph = navGraph)
         }
     }
 
-    NavHost(navController = navController, graph = navGraph)
 }

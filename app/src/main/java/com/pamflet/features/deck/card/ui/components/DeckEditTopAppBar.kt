@@ -1,4 +1,4 @@
-package com.pamflet.features.deck.shared
+package com.pamflet.features.deck.card.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,6 +21,7 @@ import com.pamflet.shared.ui.components.topAppBarTitleTextStyle
 import com.pamflet.shared.ui.theme.Gray600
 import com.pamflet.shared.ui.theme.Gray900
 import com.pamflet.shared.ui.theme.Red200
+import com.pamflet.shared.ui.theme.Red400
 import com.pamflet.shared.ui.theme.Red500
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,7 +69,7 @@ fun DeckEditTopAppBar(
                 enabled = deckUiState is DeckUiState.Success && deckUiState.deck != null,
                 colors = IconButtonDefaults.iconButtonColors(
                     contentColor = Red500,
-                    disabledContentColor = Red200
+                    disabledContentColor = Red400
                 )
             ) {
                 Icon(

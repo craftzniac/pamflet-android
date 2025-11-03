@@ -3,6 +3,7 @@ package com.pamflet.shared.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
@@ -17,7 +18,8 @@ import com.pamflet.shared.ui.theme.Gray600
 @Composable
 fun LoadingSpinner() {
     CircularProgressIndicator(
-        modifier = Modifier.width(24.dp),
+        modifier = Modifier
+            .size(24.dp),
         color = Gray600,
         trackColor = Gray200
     )

@@ -14,20 +14,22 @@ import com.pamflet.core.data.repository.GetAllFlashcardsFromDeckResponse
 import com.pamflet.core.data.repository.GetDeckResponse
 import com.pamflet.core.domain.Deck
 import com.pamflet.core.domain.Flashcard
+import com.pamflet.shared.viewmodel.SharedCardListViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class DeckCardsListViewModelFactory(
-    val deckCardsListNavData: NavDestination.DeckCardsList,
+class DeckCardListViewModelFactory(
     val flashcardRepository: FlashcardRepository,
-    val deckRepository: DeckRepository
+    val deckRepository: DeckRepository,
+    val sharedCardListViewModel: SharedCardListViewModel
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return DeckCardsListViewModel(
-            deckCardsListNavData, flashcardRepository, deckRepository
+        return CardListViewModel(
+            flashcardRepository,
+            deckRepository,
+            sharedCardListViewModel
         ) as T
     }
 }
@@ -46,28 +48,23 @@ sealed class DeckUiState {
 }
 
 
-class DeckCardsListViewModel(
-    val deckCardsListNavData: NavDestination.DeckCardsList,
+class CardListViewModel(
     val flashcardRepository: FlashcardRepository,
-    val deckRepository: DeckRepository
+    val deckRepository: DeckRepository,
+    val sharedCardListViewModel: SharedCardListViewModel
 ) : ViewModel() {
-    var flashcardsUiState by mutableStateOf<FlashcardsUiState>(FlashcardsUiState.Loading)
-        private set
-
     var deckUiState by mutableStateOf<DeckUiState>(DeckUiState.Loading)
         private set
 
-    val deckId = deckCardsListNavData.selectedDeckId
+    val flashcardsUiState by sharedCardListViewModel.flashcardsUiStateMutState
 
-    init {
-        fetchDeck()
-        fetchFlashcards()
-    }
+    fun fetchFlashcards(deckId: String) = sharedCardListViewModel.fetchCards(deckId)
 
-    fun fetchDeck() {
+    fun refetchFlashcards() = sharedCardListViewModel.refetchCards()
+
+    fun fetchDeck(deckId: String) {
         viewModelScope.launch {
             val response = withContext(Dispatchers.IO) {
-                delay(3000)
                 deckRepository.getDeck(deckId)
             }
             deckUiState = when (response) {
@@ -82,26 +79,6 @@ class DeckCardsListViewModel(
                     } else {
                         DeckUiState.Success(Deck.fromDeckEntity(response.deck))
                     }
-                }
-            }
-        }
-    }
-
-    fun fetchFlashcards() {
-        viewModelScope.launch {
-            val response =
-                withContext(Dispatchers.IO) { flashcardRepository.getAllFromDeck(deckId) }
-            flashcardsUiState = when (response) {
-                is GetAllFlashcardsFromDeckResponse.Error -> {
-                    FlashcardsUiState.Error(response.message)
-                }
-
-                is GetAllFlashcardsFromDeckResponse.Success -> {
-                    FlashcardsUiState.Success(
-                        response.flashcards.map {
-                            Flashcard.fromFlashcardEntity(it)
-                        }
-                    )
                 }
             }
         }

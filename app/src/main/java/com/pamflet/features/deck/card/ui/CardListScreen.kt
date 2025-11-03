@@ -23,6 +23,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pamflet.navigation.NavDestination
 import com.pamflet.R
-import com.pamflet.features.deck.shared.DeckEditTopAppBar
+import com.pamflet.features.deck.card.ui.components.DeckEditTopAppBar
 import com.pamflet.shared.ui.components.ErrorSection
 import com.pamflet.shared.ui.components.FullscreenLoadingSpinner
 import com.pamflet.shared.ui.theme.Gray50
@@ -43,13 +44,21 @@ import com.pamflet.shared.ui.theme.Gray900
 import com.pamflet.shared.ui.theme.Red500
 
 @Composable
-fun DeckCardsListScreen(
+fun CardListScreen(
+    cardListNavData: NavDestination.CardList,
     onNavigateBack: () -> Unit,
+    onNavigateToAddCardScreen: (data: NavDestination.AddCard) -> Unit,
     onNavigateToEditCardScreen: (data: NavDestination.EditCard) -> Unit,
-    deckCardsListViewModel: DeckCardsListViewModel
+    cardListViewModel: CardListViewModel
 ) {
-    val deckUiState = deckCardsListViewModel.deckUiState
-    val flashcardsUiState = deckCardsListViewModel.flashcardsUiState
+    val deckUiState = cardListViewModel.deckUiState
+    val flashcardsUiState = cardListViewModel.flashcardsUiState
+
+    LaunchedEffect(cardListNavData.selectedDeckId) {
+        val deckId = cardListNavData.selectedDeckId
+        cardListViewModel.fetchDeck(deckId)
+        cardListViewModel.fetchFlashcards(deckId)
+    }
 
     Scaffold(topBar = { DeckEditTopAppBar(deckUiState, onNavigateBack) }) { contentPadding ->
         Box(
@@ -70,8 +79,7 @@ fun DeckCardsListScreen(
                         isFullscreen = true,
                         message = "Try again",
                         detail = deckUiState.message,
-                        onAction = { deckCardsListViewModel.fetchDeck() }
-                    )
+                        onAction = { cardListViewModel.refetchFlashcards() })
                 }
 
                 is DeckUiState.NotFound -> {
@@ -93,14 +101,13 @@ fun DeckCardsListScreen(
                             ErrorSection(
                                 message = flashcardsUiState.message,
                                 isFullscreen = true,
-                                onAction = { deckCardsListViewModel.fetchFlashcards() }
-                            )
+                                onAction = { cardListViewModel.refetchFlashcards() })
                         }
 
                         is FlashcardsUiState.Success -> {
                             val cards = flashcardsUiState.cards
                             if (cards.isEmpty()) {
-                                DeckCardsListScreenEmpty()
+                                DeckCardsListScreenEmpty({ onNavigateToAddCardScreen(NavDestination.AddCard) })
                             } else {
                                 LazyColumn(
                                     modifier = Modifier
@@ -115,7 +122,9 @@ fun DeckCardsListScreen(
                                                 .fillMaxWidth()
                                                 .padding(start = 16.dp, end = 16.dp, top = 16.dp)
                                         ) {
-                                            CreateFlashcardButton()
+                                            CreateFlashcardButton({
+                                                onNavigateToAddCardScreen(NavDestination.AddCard)
+                                            })
                                         }
                                     }
 
@@ -123,9 +132,7 @@ fun DeckCardsListScreen(
                                         Column(
                                             verticalArrangement = Arrangement.spacedBy(8.dp),
                                             modifier = Modifier.padding(
-                                                start = 16.dp,
-                                                end = 16.dp,
-                                                bottom = 16.dp
+                                                start = 16.dp, end = 16.dp, bottom = 16.dp
                                             )
                                         ) {
                                             cards.forEachIndexed { index, card ->
@@ -151,8 +158,7 @@ fun DeckCardsListScreen(
                                                         modifier = Modifier
                                                             .fillMaxWidth()
                                                             .padding(
-                                                                horizontal = 12.dp,
-                                                                vertical = 8.dp
+                                                                horizontal = 12.dp, vertical = 8.dp
                                                             ),
                                                         verticalAlignment = Alignment.CenterVertically,
                                                         horizontalArrangement = Arrangement.spacedBy(
@@ -193,11 +199,9 @@ fun DeckCardsListScreen(
 }
 
 @Composable
-fun CreateFlashcardButton() {
+fun CreateFlashcardButton(onClick: () -> Unit) {
     Button(
-        onClick = {},
-        shape = RoundedCornerShape(8.dp),
-        modifier = Modifier.height(48.dp)
+        onClick = onClick, shape = RoundedCornerShape(8.dp), modifier = Modifier.height(48.dp)
     ) {
         Icon(
             painter = painterResource(R.drawable.plus),
@@ -210,7 +214,7 @@ fun CreateFlashcardButton() {
 }
 
 @Composable
-fun DeckCardsListScreenEmpty() {
+fun DeckCardsListScreenEmpty(onNavigateToAddCardScreen: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -226,6 +230,6 @@ fun DeckCardsListScreenEmpty() {
             color = Gray600,
             textAlign = TextAlign.Center
         )
-        CreateFlashcardButton()
+        CreateFlashcardButton(onClick = onNavigateToAddCardScreen)
     }
 }

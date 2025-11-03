@@ -30,7 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.pamflet.shared.ui.components.FlashcardCard
+import com.pamflet.shared.ui.components.PreviewCard
 import com.pamflet.navigation.NavDestination
 import com.pamflet.R
 import com.pamflet.core.domain.DeckWithCards
@@ -46,12 +46,14 @@ val dummyCards = listOf(
     Flashcard(
         id = UUID.randomUUID().toString(),
         front = "something",
-        back = "nothing"
+        back = "nothing",
+        deckId = ""
     ),
     Flashcard(
         id = UUID.randomUUID().toString(),
         front = "Somebody name",
-        back = "Another thing to note"
+        back = "Another thing to note",
+        deckId = ""
     ),
 )
 
@@ -179,7 +181,7 @@ fun ReviewScreen(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            FlashcardCard(
+                            PreviewCard(
                                 card = cards[page],
                                 isFlipped = if (page == pagerState.currentPage) isFlippedMutState.value else false
                             )

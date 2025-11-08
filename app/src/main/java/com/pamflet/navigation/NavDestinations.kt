@@ -65,7 +65,8 @@ sealed class NavDestination : Routable {
 
     @Serializable
     data class EditCard(
-        val selectedCardId: String?
+        val selectedCardId: String,
+        val deckId: String
     ) : NavDestination() {
         override val serialName: String
             get() = serializer().descriptor.serialName

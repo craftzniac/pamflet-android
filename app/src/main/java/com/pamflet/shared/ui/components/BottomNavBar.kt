@@ -15,6 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.pamflet.navigation.NavDestination
 import com.pamflet.R
+import com.pamflet.shared.ui.theme.Gray900
 import com.pamflet.shared.ui.theme.Purple500
 
 fun isRouteSelected(route: NavDestination, currentSelectedRoute: String?): Boolean {
@@ -23,11 +24,10 @@ fun isRouteSelected(route: NavDestination, currentSelectedRoute: String?): Boole
 
 data class NavBarItem(
     val route: NavDestination,
-    val icon: @Composable () -> Unit,
+    val icon: @Composable (isSelected: Boolean) -> Unit,
     val label: String,
-    val onClick: () -> Unit,
-
-    )
+    val onClick: () -> Unit
+)
 
 @Composable
 fun BottomNavBar(
@@ -38,36 +38,29 @@ fun BottomNavBar(
 ) {
     val navbarItems = listOf(
         NavBarItem(
-            route = NavDestination.SetupReview,
-            icon = @Composable {
+            route = NavDestination.SetupReview, icon = @Composable {
                 Box(modifier = Modifier.size(24.dp)) { Logo() }
-            },
-            label = "Cards Slide",
-            onClick = onNavigateToCardsSlideSetupScreen
+            }, label = "Cards Slide", onClick = onNavigateToCardsSlideSetupScreen
         ),
         NavBarItem(
-            route = NavDestination.ManageDecks,
-            icon = @Composable {
+            route = NavDestination.ManageDecks, icon = @Composable { isSelected ->
                 Icon(
                     painter = painterResource(id = R.drawable.nav_scroll),
                     contentDescription = "",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
+                    tint = if (isSelected) Purple500 else Gray900
                 )
-            },
-            label = "Manage Decks",
-            onClick = onNavigateToManageDecksScreen
+            }, label = "Manage Decks", onClick = onNavigateToManageDecksScreen
         ),
         NavBarItem(
-            route = NavDestination.Profile,
-            icon = @Composable {
+            route = NavDestination.Profile, icon = @Composable { isSelected ->
                 Icon(
                     painter = painterResource(id = R.drawable.nav_profile),
                     contentDescription = "",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp),
+                    tint = if (isSelected) Purple500 else Gray900
                 )
-            },
-            label = "Profile",
-            onClick = onNavigateToProfileScreen
+            }, label = "Profile", onClick = onNavigateToProfileScreen
         ),
     )
 
@@ -77,10 +70,11 @@ fun BottomNavBar(
         contentColor = Color.Unspecified
     ) {
         navbarItems.forEach { item ->
+            val isRouteSelected = isRouteSelected(item.route, currentSelectedRoute)
             NavigationBarItem(
-                selected = isRouteSelected(item.route, currentSelectedRoute),
+                selected = isRouteSelected,
                 onClick = item.onClick,
-                icon = item.icon,
+                icon = { item.icon(isRouteSelected) },
                 label = {
                     Text(text = item.label)
                 },

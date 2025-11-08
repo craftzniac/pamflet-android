@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Icon
@@ -31,12 +30,14 @@ enum class CardSelectionMode {
 
 @Composable
 fun EditAndPreviewCard(
-    card: Flashcard,
+    cardFrontContent: String,
+    cardBackContent: String,
     updateCardFront: (value: String) -> Unit,
     updateCardBack: (value: String) -> Unit,
+    enabled: Boolean = true,
 ) {
     val isFlippedMutState = remember { mutableStateOf(false) }
-    val cardSelectionModeMutState = remember { mutableStateOf(CardSelectionMode.Preview) }
+    val cardSelectionModeMutState = remember { mutableStateOf(CardSelectionMode.Edit) }
 
     Column(
         verticalArrangement = Arrangement.spacedBy(4.dp),
@@ -97,16 +98,19 @@ fun EditAndPreviewCard(
             when (cardSelectionModeMutState.value) {
                 CardSelectionMode.Edit -> {
                     EditorCard(
-                        card = card,
+                        cardFrontContent,
+                        cardBackContent,
                         updateCardFront = updateCardFront,
                         updateCardBack = updateCardBack,
-                        isFlipped = isFlippedMutState.value
+                        isFlipped = isFlippedMutState.value,
+                        enabled = enabled
                     )
                 }
 
                 CardSelectionMode.Preview -> {
                     PreviewCard(
-                        card = card,
+                        cardFrontContent,
+                        cardBackContent,
                         isFlipped = isFlippedMutState.value
                     )
                 }

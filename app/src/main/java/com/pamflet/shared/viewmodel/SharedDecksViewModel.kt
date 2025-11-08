@@ -12,7 +12,6 @@ import com.pamflet.core.data.repository.GetAllDecksResponse
 import com.pamflet.core.data.repository.UpdateDeckResponse
 import com.pamflet.core.domain.Deck
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -81,7 +80,6 @@ class SharedDecksViewModel(
     private fun _fetchDecks() {
         viewModelScope.launch {
             val response = withContext(Dispatchers.IO) {
-                delay(2000)
                 deckRepository.getDecks()
             }
             decksUiStateMutState.value = when (response) {

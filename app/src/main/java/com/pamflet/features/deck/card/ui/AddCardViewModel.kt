@@ -17,6 +17,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 class AddCardViewModelFactory(
     val addCardNavData: NavDestination.AddCard,
@@ -24,7 +25,6 @@ class AddCardViewModelFactory(
     val flashcardRepository: FlashcardRepository,
     val sharedUiEventViewModel: SharedUiEventViewModel,
     val refetchCards: () -> Unit,
-    val fetchCards: (String) -> Unit,
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST") return AddCardViewModel(
@@ -33,7 +33,6 @@ class AddCardViewModelFactory(
             flashcardRepository,
             sharedUiEventViewModel,
             refetchCards,
-            fetchCards,
         ) as T
     }
 }
@@ -47,54 +46,20 @@ sealed class CreateCardActionStatus {
 
 class AddCardViewModel(
     initialSelectedDeckId: String?,
-    private val sharedDecksViewModel: SharedDecksViewModel,
+    sharedDecksViewModel: SharedDecksViewModel,
     private val flashcardRepository: FlashcardRepository,
-    private val sharedUiEventViewModel: SharedUiEventViewModel,
+    sharedUiEventViewModel: SharedUiEventViewModel,
     private val refetchCards: () -> Unit,
-    private val fetchCards: (String) -> Unit,
-) : AddOrEditCardFormStateHolderViewModel() {
-    val decksUiState by sharedDecksViewModel.decksUiStateMutState
-
-    // state used by the deck select menu
-    var selectedDeckUiState by mutableStateOf(
-        value = when (decksUiState) {
-            is DecksUiState.Success -> {
-                (decksUiState as DecksUiState.Success).decks.find { it.id == initialSelectedDeckId }
-            }
-
-            else -> null
-        }
-    )
-        private set
-
+) : AddOrEditCardFormStateHolderViewModel(
+    sharedUiEventViewModel,
+    initialSelectedDeckId,
+    sharedDecksViewModel
+) {
     var createCardActionStatusUiState by mutableStateOf<CreateCardActionStatus>(
         CreateCardActionStatus.NotStarted
     )
 
-    fun retryFetchDecks() = sharedDecksViewModel.fetchDecks();
-    fun refetchDecks() = sharedDecksViewModel.refetchDecks();
-
-    var isDeckSelectOpenUiState by mutableStateOf(false)
-        private set
-
-    fun openDeckSelectDialog() {
-        isDeckSelectOpenUiState = true
-    }
-
-    fun closeDeckSelectDialog() {
-        isDeckSelectOpenUiState = false
-    }
-
-    fun updateSelectedDeck(deck: Deck) {
-        selectedDeckUiState = deck
-    }
-
-    fun emitSnackBarMessage(message: String) {
-        sharedUiEventViewModel.emitSnackBarMessage(message)
-    }
-
     fun createCard() {
-        this.cardUiState.deckId = selectedDeckUiState?.id ?: ""
         // validate form
         val validationResult = this.validate()
         when (validationResult) {
@@ -107,7 +72,7 @@ class AddCardViewModel(
 
             is AddOrEditCardFormValidation.Success -> {
                 createCardActionStatusUiState = CreateCardActionStatus.Submitting
-                val newFlashcardEntity = this.cardUiState.toFlashcardEntity()
+                val newFlashcardEntity = this.cardFormInputUiState.toFlashcardEntity()
                 viewModelScope.launch {
                     delay(2000)
                     val response = flashcardRepository.create(newFlashcardEntity)

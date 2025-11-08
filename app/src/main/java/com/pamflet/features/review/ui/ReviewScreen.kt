@@ -158,7 +158,8 @@ fun ReviewScreen(
                             IconButton(onClick = {
                                 val data =
                                     NavDestination.EditCard(
-                                        selectedCardId = selectedFlashcardMutState.value.id
+                                        selectedCardId = selectedFlashcardMutState.value.id,
+                                        deckId = selectedFlashcardMutState.value.deckId
                                     )
                                 onNavigateToEditCardScreen(data)
                             }) {
@@ -181,8 +182,10 @@ fun ReviewScreen(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier.fillMaxWidth()
                         ) {
+                            val card = cards[page]
                             PreviewCard(
-                                card = cards[page],
+                                cardFrontContent = card.front,
+                                cardBackContent = card.back,
                                 isFlipped = if (page == pagerState.currentPage) isFlippedMutState.value else false
                             )
                         }

@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.pamflet.core.data.local.entity.FlashcardEntity
 
 @Dao
@@ -16,6 +17,9 @@ interface FlashcardDao {
 
     @Insert
     suspend fun insertOne(flashcard: FlashcardEntity)
+
+    @Update
+    suspend fun updateOne(flashcard: FlashcardEntity)
 
     @Delete
     suspend fun delete(flashcard: FlashcardEntity)

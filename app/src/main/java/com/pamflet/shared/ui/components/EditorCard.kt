@@ -93,10 +93,12 @@ fun FlippableCard(
 
 @Composable
 fun EditorCard(
-    card: Flashcard,
+    cardFrontContent: String,
+    cardBackContent: String,
     updateCardFront: (update: String) -> Unit,
     updateCardBack: (update: String) -> Unit,
-    isFlipped: Boolean
+    isFlipped: Boolean,
+    enabled: Boolean = true,
 ) {
     FlippableCard(
         isFlipped = isFlipped,
@@ -104,16 +106,18 @@ fun EditorCard(
         front = {
             Editor(
                 cardFace = CardFace.Front,
-                content = card.front,
-                setContent = { newValue -> updateCardFront(newValue) }
+                content = cardFrontContent,
+                setContent = { newValue -> updateCardFront(newValue) },
+                enabled = enabled
             )
         },
         back = { modifier ->
             Editor(
                 modifier = modifier,
                 cardFace = CardFace.Back,
-                content = card.back,
-                setContent = { newValue -> updateCardBack(newValue) }
+                content = cardBackContent,
+                setContent = { newValue -> updateCardBack(newValue) },
+                enabled = enabled
             )
         }
     )
@@ -124,9 +128,11 @@ fun Editor(
     modifier: Modifier = Modifier,
     content: String,
     setContent: (newValue: String) -> Unit,
-    cardFace: CardFace
+    cardFace: CardFace,
+    enabled: Boolean =  true,
 ) {
     BasicTextField(
+        enabled = enabled,
         textStyle = TextStyle(fontSize = FontSize.Lg),
         keyboardOptions = KeyboardOptions(
             capitalization = KeyboardCapitalization.None,

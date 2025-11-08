@@ -16,10 +16,22 @@ sealed class GetAllFlashcardsFromDeckResponse {
     data class Success(val flashcards: List<FlashcardEntity>) : GetAllFlashcardsFromDeckResponse()
 }
 
+sealed class GetFlashcardResponse {
+    data class Error(val message: String) : GetFlashcardResponse()
+    data class Success(val flashcard: FlashcardEntity?) : GetFlashcardResponse()
+}
+
+
 sealed class CreateFlashcardResponse {
     data class Error(val message: String) : CreateFlashcardResponse()
     data object Success : CreateFlashcardResponse()
 }
+
+sealed class UpdateFlashcardResponse {
+    data class Error(val message: String) : UpdateFlashcardResponse()
+    data object Success : UpdateFlashcardResponse()
+}
+
 
 class FlashcardRepository(
     private val flashcardDao: FlashcardDao
@@ -48,6 +60,15 @@ class FlashcardRepository(
         }
     }
 
+    suspend fun get(cardId: String, deckId: String) = withContext(Dispatchers.IO) {
+        try {
+            val flashcard = flashcardDao.getOne(cardId, deckId)
+            GetFlashcardResponse.Success(flashcard)
+        } catch (ex: Exception) {
+            GetFlashcardResponse.Error(message = "Couldn't get flashcard")
+        }
+    }
+
     suspend fun create(flashcard: FlashcardEntity): CreateFlashcardResponse = withContext(
         Dispatchers.IO
     ) {
@@ -58,5 +79,15 @@ class FlashcardRepository(
             CreateFlashcardResponse.Error("Couldn't create flashcard")
         }
     }
+
+    suspend fun update(flashcard: FlashcardEntity): UpdateFlashcardResponse =
+        withContext(Dispatchers.IO) {
+            try {
+                flashcardDao.updateOne(flashcard)
+                UpdateFlashcardResponse.Success
+            } catch (ex: Exception) {
+                UpdateFlashcardResponse.Error("Couldn't update flashcard")
+            }
+        }
 
 }

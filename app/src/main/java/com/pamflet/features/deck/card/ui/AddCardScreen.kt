@@ -42,7 +42,7 @@ fun AddCardScreen(
                     Box(modifier = Modifier.padding(16.dp)) {
                         DeckSelectDialogInputTrigger(
                             openDialog = { addCardViewModel.openDeckSelectDialog() },
-                            selectedDeck = addCardViewModel.selectedDeckUiState
+                            selectedDeck = addCardViewModel.cardFormInputUiState.selectedDeck
                         )
                         if (addCardViewModel.isDeckSelectOpenUiState) {
                             DeckSelectInput(
@@ -55,7 +55,7 @@ fun AddCardScreen(
                                     )
                                 },
                                 onNavigateToAddDeckScreen = onNavigateToAddDeckScreen,
-                                selectedDeck = addCardViewModel.selectedDeckUiState
+                                selectedDeck = addCardViewModel.cardFormInputUiState.selectedDeck
                             )
                         }
                     }
@@ -65,7 +65,8 @@ fun AddCardScreen(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                     ) {
                         EditAndPreviewCard(
-                            card = addCardViewModel.cardUiState,
+                            cardFrontContent = addCardViewModel.cardFormInputUiState.front,
+                            cardBackContent = addCardViewModel.cardFormInputUiState.back,
                             updateCardBack = { back -> addCardViewModel.setCardBack(back) },
                             updateCardFront = { front -> addCardViewModel.setCardFront(front) }
                         )
@@ -83,10 +84,8 @@ fun AddCardScreen(
                                 addCardViewModel.createCard()
                             },
                             isSubmitting = addCardViewModel.createCardActionStatusUiState is CreateCardActionStatus.Submitting,
-                            enabled = if (addCardViewModel.decksUiState !is DecksUiState.Success) false else {
+                            enabled = addCardViewModel.decksUiState is DecksUiState.Success
                                 // add more logic
-                                true
-                            }
                         )
                     }
                 }

@@ -153,7 +153,8 @@ fun CardListScreen(
                                                         .clickable {
                                                             val deckCardsSlideEdit =
                                                                 NavDestination.EditCard(
-                                                                    selectedCardId = card.id
+                                                                    selectedCardId = card.id,
+                                                                    deckId = card.deckId
                                                                 )
                                                             onNavigateToEditCardScreen(
                                                                 deckCardsSlideEdit

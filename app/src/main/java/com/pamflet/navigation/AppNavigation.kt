@@ -164,7 +164,8 @@ fun AppNavigation(app: PamfletApplication) {
 
             val navGraph = remember(navController) {
                 navController.createGraph(
-                    startDestination = NavDestination.Login, route = NavDestination.Root::class
+                    startDestination = NavDestination.SetupReview,
+                    route = NavDestination.Root::class
                 ) {
                     // Start Auth features
                     composable<NavDestination.Login> {
@@ -227,8 +228,18 @@ fun AppNavigation(app: PamfletApplication) {
                         )
                     }
                     composable<NavDestination.EditCard> { backStackEntry ->
+
                         val editCardNavData: NavDestination.EditCard =
                             backStackEntry.toRoute()
+
+                        val sharedCardListViewModel: SharedCardListViewModel =
+                            getSharedCardListViewModel(
+                                flashcardRepository = app.flashcardRepository,
+                                deckId = editCardNavData.deckId,
+                                backStackEntry,
+                                navController
+                            )
+
                         val editCardViewModel: EditCardViewModel = viewModel(
                             factory = EditCardViewModelFactory(
                                 editCardNavData,
@@ -238,9 +249,11 @@ fun AppNavigation(app: PamfletApplication) {
                                     backStackEntry,
                                     navController
                                 ),
+                                sharedUiEventViewModel,
+                                refetchCards = { sharedCardListViewModel.refetchCards() }
                             )
                         )
-                        EditCardScreen(editCardViewModel, onNavigateBack)
+                        EditCardScreen(editCardViewModel, onNavigateBack, onNavigateToAddDeckScreen)
                     }
                     composable<NavDestination.CardList> { backStackEntry ->
                         val cardListNavData: NavDestination.CardList =
@@ -319,7 +332,6 @@ fun AppNavigation(app: PamfletApplication) {
                                 sharedDecksViewModel = sharedDecksViewModel,
                                 sharedUiEventViewModel = sharedUiEventViewModel,
                                 refetchCards = { sharedCardListViewModel.refetchCards() },
-                                fetchCards = { deckId -> sharedCardListViewModel.fetchCards(deckId) },
                             )
                         )
                         AddCardScreen(addCardViewModel, onNavigateBack, onNavigateToAddDeckScreen)

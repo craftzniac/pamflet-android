@@ -15,9 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -45,14 +43,13 @@ import com.pamflet.shared.ui.components.ErrorSection
 import com.pamflet.shared.ui.components.LoadingSpinner
 import com.pamflet.shared.ui.theme.Gray100
 import com.pamflet.shared.ui.theme.Gray200
-import com.pamflet.shared.ui.theme.Gray300
 import com.pamflet.shared.ui.theme.Gray50
 import com.pamflet.shared.ui.theme.Gray700
 import com.pamflet.shared.ui.theme.Gray900
 import com.pamflet.shared.viewmodel.DecksUiState
 
 @Composable
-fun DeckSelectDialogTrigger(
+fun DeckSelectDialogInputTrigger(
     openDialog: () -> Unit,
     selectedDeck: Deck?
 ) {
@@ -96,7 +93,7 @@ fun DeckSelectDialogTrigger(
 }
 
 @Composable
-fun DeckSelectDialog(
+fun DeckSelectInput(
     onDismissRequest: () -> Unit,
     decksUiState: DecksUiState,
     retryFetchDecks: () -> Unit,

@@ -299,24 +299,27 @@ fun AppNavigation(app: PamfletApplication) {
                         EditDeckScreen(onNavigateBack, editDeckViewModel)
                     }
                     composable<NavDestination.AddCard> { backStackEntry ->
+                        val addCardNavData: NavDestination.AddCard = backStackEntry.toRoute()
                         val sharedCardListViewModel: SharedCardListViewModel =
                             getSharedCardListViewModel(
                                 flashcardRepository = app.flashcardRepository,
-                                deckId = "",     // WARN: might have to come back to this because deckId being "" might introduce unexpected behavior
+                                deckId = addCardNavData.deckId
+                                    ?: "",     // WARN: might have to come back to this because deckId being "" might introduce unexpected behavior
                                 backStackEntry,
                                 navController
                             )
 
+                        val sharedDecksViewModel = getSharedDecksViewModel(
+                            app, backStackEntry, navController
+                        )
                         val addCardViewModel: AddCardViewModel = viewModel(
                             factory = AddCardViewModelFactory(
+                                addCardNavData,
                                 flashcardRepository = app.flashcardRepository,
-                                sharedDecksViewModel = getSharedDecksViewModel(
-                                    app,
-                                    backStackEntry,
-                                    navController
-                                ),
+                                sharedDecksViewModel = sharedDecksViewModel,
                                 sharedUiEventViewModel = sharedUiEventViewModel,
-                                refetchCards = { sharedCardListViewModel.refetchCards() }
+                                refetchCards = { sharedCardListViewModel.refetchCards() },
+                                fetchCards = { deckId -> sharedCardListViewModel.fetchCards(deckId) },
                             )
                         )
                         AddCardScreen(addCardViewModel, onNavigateBack, onNavigateToAddDeckScreen)

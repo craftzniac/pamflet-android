@@ -1,6 +1,5 @@
 package com.pamflet.shared.viewmodel
 
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.getValue
@@ -14,7 +13,7 @@ class SharedUiEventViewModel : ViewModel() {
         snackBarMessage = ""
     }
 
-    fun showMessage(msg: String) {
+    fun emitSnackBarMessage(msg: String) {
         snackBarMessage = msg
     }
 }

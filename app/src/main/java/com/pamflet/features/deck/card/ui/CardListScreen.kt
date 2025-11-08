@@ -107,7 +107,11 @@ fun CardListScreen(
                         is FlashcardsUiState.Success -> {
                             val cards = flashcardsUiState.cards
                             if (cards.isEmpty()) {
-                                DeckCardsListScreenEmpty({ onNavigateToAddCardScreen(NavDestination.AddCard) })
+                                DeckCardsListScreenEmpty({
+                                    val navData =
+                                        NavDestination.AddCard(deckId = deckUiState.deck?.id)
+                                    onNavigateToAddCardScreen(navData)
+                                })
                             } else {
                                 LazyColumn(
                                     modifier = Modifier
@@ -123,7 +127,9 @@ fun CardListScreen(
                                                 .padding(start = 16.dp, end = 16.dp, top = 16.dp)
                                         ) {
                                             CreateFlashcardButton({
-                                                onNavigateToAddCardScreen(NavDestination.AddCard)
+                                                val navData =
+                                                    NavDestination.AddCard(deckId = deckUiState.deck?.id)
+                                                onNavigateToAddCardScreen(navData)
                                             })
                                         }
                                     }

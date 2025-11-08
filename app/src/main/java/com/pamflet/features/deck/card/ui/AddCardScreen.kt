@@ -12,8 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.pamflet.features.deck.card.ui.components.AddOrEditCardSubmitButton
-import com.pamflet.features.deck.card.ui.components.DeckSelectDialog
-import com.pamflet.features.deck.card.ui.components.DeckSelectDialogTrigger
+import com.pamflet.features.deck.card.ui.components.DeckSelectInput
+import com.pamflet.features.deck.card.ui.components.DeckSelectDialogInputTrigger
 import com.pamflet.features.deck.card.ui.components.EditAndPreviewCard
 import com.pamflet.shared.ui.components.SimpleTopAppBar
 import com.pamflet.shared.ui.theme.Gray50
@@ -40,12 +40,12 @@ fun AddCardScreen(
             LazyColumn(modifier = Modifier.background(color = Gray50)) {
                 item {
                     Box(modifier = Modifier.padding(16.dp)) {
-                        DeckSelectDialogTrigger(
+                        DeckSelectDialogInputTrigger(
                             openDialog = { addCardViewModel.openDeckSelectDialog() },
                             selectedDeck = addCardViewModel.selectedDeckUiState
                         )
                         if (addCardViewModel.isDeckSelectOpenUiState) {
-                            DeckSelectDialog(
+                            DeckSelectInput(
                                 onDismissRequest = { addCardViewModel.closeDeckSelectDialog() },
                                 decksUiState = addCardViewModel.decksUiState,
                                 retryFetchDecks = { addCardViewModel.retryFetchDecks() },

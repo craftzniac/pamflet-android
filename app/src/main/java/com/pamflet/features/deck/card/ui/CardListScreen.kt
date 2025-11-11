@@ -19,7 +19,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -36,12 +36,12 @@ import androidx.compose.ui.unit.sp
 import com.pamflet.navigation.NavDestination
 import com.pamflet.R
 import com.pamflet.features.deck.card.ui.components.DeckEditTopAppBar
+import com.pamflet.features.deck.card.ui.components.DeleteCardButton
 import com.pamflet.shared.ui.components.ErrorSection
 import com.pamflet.shared.ui.components.FullscreenLoadingSpinner
 import com.pamflet.shared.ui.theme.Gray50
 import com.pamflet.shared.ui.theme.Gray600
 import com.pamflet.shared.ui.theme.Gray900
-import com.pamflet.shared.ui.theme.Red500
 
 @Composable
 fun CardListScreen(
@@ -58,6 +58,14 @@ fun CardListScreen(
         val deckId = cardListNavData.selectedDeckId
         cardListViewModel.fetchDeck(deckId)
         cardListViewModel.fetchFlashcards(deckId)
+    }
+
+    LaunchedEffect(cardListViewModel.deleteFlashcardActionStatus) {
+        if (cardListViewModel.deleteFlashcardActionStatus is DeleteFlashcardActionStatus.Success ||
+            cardListViewModel.deleteFlashcardActionStatus is DeleteFlashcardActionStatus.Success
+        ) {
+            cardListViewModel.resetDeleteFlashcardActionStatus()
+        }
     }
 
     Scaffold(topBar = { DeckEditTopAppBar(deckUiState, onNavigateBack) }) { contentPadding ->
@@ -144,21 +152,30 @@ fun CardListScreen(
                                             cards.forEachIndexed { index, card ->
                                                 Card(
                                                     shape = RoundedCornerShape(8.dp),
-                                                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                                                    colors = if (cardListViewModel.deletingCardId == card.id) {
+                                                        CardDefaults.cardColors(
+                                                            containerColor = Color.White,
+                                                            contentColor = Gray600
+                                                        )
+                                                    } else {
+                                                        CardDefaults.cardColors(containerColor = Color.White)
+                                                    },
                                                     elevation = CardDefaults.cardElevation(
                                                         defaultElevation = 2.dp
                                                     ),
                                                     modifier = Modifier
                                                         .fillMaxWidth()
                                                         .clickable {
-                                                            val deckCardsSlideEdit =
-                                                                NavDestination.EditCard(
-                                                                    selectedCardId = card.id,
-                                                                    deckId = card.deckId
+                                                            if (cardListViewModel.deletingCardId != card.id) {  // disable click logic if the card is currently in the process of being deleted
+                                                                val deckCardsSlideEdit =
+                                                                    NavDestination.EditCard(
+                                                                        selectedCardId = card.id,
+                                                                        deckId = card.deckId
+                                                                    )
+                                                                onNavigateToEditCardScreen(
+                                                                    deckCardsSlideEdit
                                                                 )
-                                                            onNavigateToEditCardScreen(
-                                                                deckCardsSlideEdit
-                                                            )
+                                                            }
                                                         },
                                                 ) {
                                                     Row(
@@ -172,28 +189,44 @@ fun CardListScreen(
                                                             8.dp
                                                         )
                                                     ) {
-                                                        Text(
-                                                            text = "Card ${index + 1}",
-                                                            fontSize = 16.sp,
-                                                            color = Gray900,
-                                                            fontWeight = FontWeight.Medium,
-                                                            modifier = Modifier.weight(1F),
-                                                            overflow = TextOverflow.Ellipsis,
-                                                            maxLines = 1
-                                                        )
-                                                        IconButton(onClick = {}) {
-                                                            Icon(
-                                                                painter = painterResource(R.drawable.trash_can),
-                                                                contentDescription = "trash can",
-                                                                tint = Red500
+                                                        if (card.front.isEmpty()) {
+                                                            Text(
+                                                                text = "<Empty>",
+                                                                fontSize = 16.sp,
+                                                                color = Gray600,
+                                                                fontStyle = FontStyle.Italic,
+                                                                fontWeight = FontWeight.Medium,
+                                                                modifier = Modifier.weight(1F),
+                                                                overflow = TextOverflow.Ellipsis,
+                                                                maxLines = 1
+                                                            )
+                                                        } else {
+                                                            Text(
+                                                                text = card.front,
+                                                                fontSize = 16.sp,
+                                                                color = Gray900,
+                                                                fontWeight = FontWeight.Medium,
+                                                                modifier = Modifier.weight(1F),
+                                                                overflow = TextOverflow.Ellipsis,
+                                                                maxLines = 1
                                                             )
                                                         }
+
+                                                        DeleteCardButton(
+                                                            onAction = {
+                                                                cardListViewModel.updateDeletingCardId(
+                                                                    card.id
+                                                                )
+                                                            },
+                                                            isSubmitting = if (cardListViewModel.deletingCardId == card.id) {
+                                                                cardListViewModel.deleteFlashcardActionStatus is DeleteFlashcardActionStatus.Submitting
+                                                            } else false
+                                                        )
                                                     }
                                                 }
                                             }
                                         }
                                     }
-
                                 }
                             }
                         }

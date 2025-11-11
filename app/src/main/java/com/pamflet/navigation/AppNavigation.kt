@@ -259,19 +259,24 @@ fun AppNavigation(app: PamfletApplication) {
                         val cardListNavData: NavDestination.CardList =
                             backStackEntry.toRoute()
 
-                        val sharedCardListViewModel: SharedCardListViewModel =
-                            getSharedCardListViewModel(
-                                flashcardRepository = app.flashcardRepository,
-                                deckId = cardListNavData.selectedDeckId,
-                                backStackEntry,
-                                navController
-                            )
+                        val sharedDecksViewModel = getSharedDecksViewModel(
+                            app,
+                            backStackEntry,
+                            navController
+                        )
 
                         val cardListViewModel: CardListViewModel = viewModel(
                             factory = DeckCardListViewModelFactory(
                                 flashcardRepository = app.flashcardRepository,
                                 deckRepository = app.deckRepository,
-                                sharedCardListViewModel
+                                sharedCardListViewModel = getSharedCardListViewModel(
+                                    flashcardRepository = app.flashcardRepository,
+                                    deckId = cardListNavData.selectedDeckId,
+                                    backStackEntry = backStackEntry,
+                                    navController = navController
+                                ),
+                                sharedUiEventViewModel,
+                                refetchDecks = { sharedDecksViewModel.refetchDecks() }
                             )
                         )
 

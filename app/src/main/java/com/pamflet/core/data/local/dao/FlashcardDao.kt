@@ -21,8 +21,8 @@ interface FlashcardDao {
     @Update
     suspend fun updateOne(flashcard: FlashcardEntity)
 
-    @Delete
-    suspend fun delete(flashcard: FlashcardEntity)
+    @Query("DELETE FROM flashcard_table WHERE flashcard_table.id IN (:ids)")
+    suspend fun deleteOneOrMore(ids: List<String>)
 
     @Query("DELETE FROM flashcard_table WHERE flashcard_table.deck_id = :deckId")
     suspend fun deleteAllFromDeck(deckId: String)

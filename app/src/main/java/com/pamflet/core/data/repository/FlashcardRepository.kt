@@ -32,6 +32,11 @@ sealed class UpdateFlashcardResponse {
     data object Success : UpdateFlashcardResponse()
 }
 
+sealed class DeleteFlashcardResponse {
+    data class Error(val message: String) : DeleteFlashcardResponse()
+    data object Success : DeleteFlashcardResponse()
+}
+
 
 class FlashcardRepository(
     private val flashcardDao: FlashcardDao
@@ -89,5 +94,23 @@ class FlashcardRepository(
                 UpdateFlashcardResponse.Error("Couldn't update flashcard")
             }
         }
+
+    suspend fun deleteOneOrMore(flashcardIds: List<String>) = withContext(Dispatchers.IO) {
+        try {
+            flashcardDao.deleteOneOrMore(ids = flashcardIds)
+            DeleteFlashcardResponse.Success
+        } catch (ex: Exception) {
+            DeleteFlashcardResponse.Error("Couldn't delete flashcards")
+        }
+    }
+
+    suspend fun deleteOne(flashcardId: String) = withContext(Dispatchers.IO) {
+        try {
+            flashcardDao.deleteOneOrMore(ids = listOf(flashcardId))
+            DeleteFlashcardResponse.Success
+        } catch (ex: Exception) {
+            DeleteFlashcardResponse.Error("Couldn't delete flashcard")
+        }
+    }
 
 }

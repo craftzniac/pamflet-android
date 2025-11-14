@@ -9,6 +9,9 @@ class SharedUiEventViewModel : ViewModel() {
     var snackBarMessage by mutableStateOf("")
         private set
 
+    var isDeleteDeckDialogOpen by mutableStateOf(false)
+        private set
+
     fun clearSnackBarMessage() {
         snackBarMessage = ""
     }
@@ -16,4 +19,13 @@ class SharedUiEventViewModel : ViewModel() {
     fun emitSnackBarMessage(msg: String) {
         snackBarMessage = msg
     }
+
+    fun openDeleteDeckDialog() {
+        isDeleteDeckDialogOpen = true
+    }
+
+    fun closeDeleteDialog() {
+        isDeleteDeckDialogOpen = false
+    }
+
 }

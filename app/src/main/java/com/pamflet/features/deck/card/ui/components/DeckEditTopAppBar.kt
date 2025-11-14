@@ -20,14 +20,17 @@ import com.pamflet.shared.ui.components.TopAppBarTitleDescriptionText
 import com.pamflet.shared.ui.components.topAppBarTitleTextStyle
 import com.pamflet.shared.ui.theme.Gray600
 import com.pamflet.shared.ui.theme.Gray900
-import com.pamflet.shared.ui.theme.Red200
 import com.pamflet.shared.ui.theme.Red400
 import com.pamflet.shared.ui.theme.Red500
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeckEditTopAppBar(
-    deckUiState: DeckUiState, onNavigateBack: () -> Unit
+    deckUiState: DeckUiState,
+    onNavigateBack: () -> Unit,
+    onNavigateToEditDeckScreen: () -> Unit,
+    onTriggerDeleteDeck: () -> Unit,
+    isDeckDeleting: Boolean
 ) {
     TopAppBar(
         title = {
@@ -51,9 +54,11 @@ fun DeckEditTopAppBar(
             }
         },
         actions = {
+            val isEnableButton =
+                (deckUiState is DeckUiState.Success && deckUiState.deck != null) || !isDeckDeleting
             IconButton(
-                onClick = {},
-                enabled = deckUiState is DeckUiState.Success && deckUiState.deck != null,
+                onClick = onNavigateToEditDeckScreen,
+                enabled = isEnableButton,
                 colors = IconButtonDefaults.iconButtonColors(
                     contentColor = Gray900,
                     disabledContentColor = Gray600
@@ -65,8 +70,8 @@ fun DeckEditTopAppBar(
                 )
             }
             IconButton(
-                onClick = {},
-                enabled = deckUiState is DeckUiState.Success && deckUiState.deck != null,
+                onClick = onTriggerDeleteDeck,
+                enabled = isEnableButton,
                 colors = IconButtonDefaults.iconButtonColors(
                     contentColor = Red500,
                     disabledContentColor = Red400

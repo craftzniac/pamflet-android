@@ -27,8 +27,8 @@ interface DeckDao {
     @Query("SELECT * FROM deck_table WHERE deck_table.id = :id")
     suspend fun getOne(id: String): DeckEntity?
 
-    @Delete
-    suspend fun deleteOne(deck: DeckEntity)
+    @Query("DELETE FROM deck_table WHERE deck_table.id = :deckId")
+    suspend fun deleteOne(deckId: String)
 
     @Insert
     suspend fun createOne(deck: DeckEntity): Long

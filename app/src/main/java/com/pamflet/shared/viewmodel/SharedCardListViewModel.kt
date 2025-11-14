@@ -12,8 +12,6 @@ import com.pamflet.features.deck.card.ui.FlashcardsUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 
 class SharedCardListViewModelFactory(
     private val flashcardRepository: FlashcardRepository

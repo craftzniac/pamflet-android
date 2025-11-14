@@ -1,20 +1,11 @@
 package com.pamflet.features.deck.ui
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.pamflet.core.domain.Deck
+import com.pamflet.shared.viewmodel.DeckId
 import com.pamflet.shared.viewmodel.SharedDecksViewModel
-
-class ManageDecksViewModel(
-    val sharedDecksViewModel: SharedDecksViewModel,
-) : ViewModel() {
-    val decksUiStateMutState = sharedDecksViewModel.decksUiStateMutState
-    val deleteDeckActionStatusMutState = sharedDecksViewModel.deleteDeckActionStatusMutState
-
-    fun deleteDeck(deck: Deck) = sharedDecksViewModel.deleteDeck(deck)
-    fun fetchDecks() = sharedDecksViewModel.fetchDecks()
-}
-
 
 @Suppress("UNCHECKED_CAST")
 class ManageDecksViewModelFactory(
@@ -25,4 +16,13 @@ class ManageDecksViewModelFactory(
             sharedDecksViewModel
         ) as T
     }
+}
+
+class ManageDecksViewModel(
+    private val sharedDecksViewModel: SharedDecksViewModel,
+) : ViewModel() {
+    val decksUiStateMutState = sharedDecksViewModel.decksUiStateMutState
+    fun fetchDecks() = sharedDecksViewModel.fetchDecks()
+    fun triggerDeckDelete(deckId: String) = sharedDecksViewModel.triggerDeleteDeck(deckId)
+    fun isDeletingDeckSubmitting(deckId: String) = sharedDecksViewModel.isDeletingDeckSubmitting(deckId)
 }

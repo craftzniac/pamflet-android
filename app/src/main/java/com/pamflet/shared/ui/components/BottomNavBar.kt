@@ -1,5 +1,6 @@
 package com.pamflet.shared.ui.components
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -19,6 +20,7 @@ import com.pamflet.shared.ui.theme.Gray900
 import com.pamflet.shared.ui.theme.Purple500
 
 fun isRouteSelected(route: NavDestination, currentSelectedRoute: String?): Boolean {
+    Log.d("isRouteSelected", "currentRoute: $currentSelectedRoute,  route: ${route.serialName}")
     return route.serialName == currentSelectedRoute
 }
 

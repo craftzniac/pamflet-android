@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.pamflet.navigation.NavDestination
 import com.pamflet.core.domain.Deck
+import com.pamflet.shared.viewmodel.DecksUiState
 import com.pamflet.shared.viewmodel.SharedDecksViewModel
 
 class EditDeckViewModelFactory(
@@ -23,7 +24,20 @@ class EditDeckViewModel(
     val editDeckData: NavDestination.EditDeck,
     val sharedDecksViewModel: SharedDecksViewModel
 ) : ViewModel() {
-    var deckName by mutableStateOf(editDeckData.deckName)
+    var deckName by mutableStateOf(
+        run {
+            val decksUiState = sharedDecksViewModel.decksUiStateMutState.value
+            when (decksUiState) {
+                is DecksUiState.Success -> {
+                    val decks = decksUiState.decks
+                    val deck = decks.find { it.id == editDeckData.deckId }
+                    deck?.name ?: ""
+                }
+
+                else -> ""
+            }
+        }
+    )
         private set
 
     val updateDeckActionStatusMutState = sharedDecksViewModel.updateDeckActionStatusMutState

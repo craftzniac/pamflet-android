@@ -8,16 +8,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import com.pamflet.core.data.repository.CreateFlashcardResponse
-import com.pamflet.core.domain.Deck
 import com.pamflet.navigation.NavDestination
-import com.pamflet.shared.viewmodel.DecksUiState
 import com.pamflet.shared.viewmodel.SharedDecksViewModel
 import com.pamflet.shared.viewmodel.SharedUiEventViewModel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.util.UUID
 
 class AddCardViewModelFactory(
     val addCardNavData: NavDestination.AddCard,
@@ -74,7 +68,6 @@ class AddCardViewModel(
                 createCardActionStatusUiState = CreateCardActionStatus.Submitting
                 val newFlashcardEntity = this.cardFormInputUiState.toFlashcardEntity()
                 viewModelScope.launch {
-                    delay(2000)
                     val response = flashcardRepository.create(newFlashcardEntity)
                     createCardActionStatusUiState = when (response) {
                         is CreateFlashcardResponse.Error -> {

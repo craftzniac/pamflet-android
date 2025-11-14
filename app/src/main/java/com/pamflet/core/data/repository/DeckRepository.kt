@@ -4,6 +4,8 @@ import android.util.Log
 import com.pamflet.core.data.local.dao.DeckDao
 import com.pamflet.core.data.local.dao.DeckEntityWithCardCount
 import com.pamflet.core.data.local.entity.DeckEntity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 sealed class CreateDeckResponse {
     data class Success(val newDeckId: String) : CreateDeckResponse()
@@ -35,8 +37,8 @@ sealed class GetAllDecksResponse {
 class DeckRepository(
     private val deckDao: DeckDao,
 ) {
-    suspend fun getDecks(): GetAllDecksResponse {
-        return try {
+    suspend fun getDecks(): GetAllDecksResponse = withContext(Dispatchers.IO) {
+        try {
             val decks = deckDao.getAll()
             GetAllDecksResponse.Success(decks)
         } catch (ex: Exception) {
@@ -44,8 +46,8 @@ class DeckRepository(
         }
     }
 
-    suspend fun createDeck(deckName: String): CreateDeckResponse {
-        return try {
+    suspend fun createDeck(deckName: String): CreateDeckResponse = withContext(Dispatchers.IO) {
+        try {
             val newDeckId = deckDao.createOne(DeckEntity(name = deckName))
             CreateDeckResponse.Success(newDeckId.toString())
         } catch (ex: Exception) {
@@ -53,17 +55,17 @@ class DeckRepository(
         }
     }
 
-    suspend fun deleteDeck(deck: DeckEntity): DeleteDeckResponse {
-        return try {
-            deckDao.deleteOne(deck)
+    suspend fun deleteDeck(deckId: String): DeleteDeckResponse = withContext(Dispatchers.IO) {
+        try {
+            deckDao.deleteOne(deckId)
             DeleteDeckResponse.Success
         } catch (err: Exception) {
             DeleteDeckResponse.Error("Couldn't delete deck")
         }
     }
 
-    suspend fun updateDeck(deck: DeckEntity): UpdateDeckResponse {
-        return try {
+    suspend fun updateDeck(deck: DeckEntity): UpdateDeckResponse = withContext(Dispatchers.IO) {
+        try {
             deckDao.updateOne(deck)
             UpdateDeckResponse.Success("Deck was successfully updated!")
         } catch (err: Exception) {
@@ -71,8 +73,8 @@ class DeckRepository(
         }
     }
 
-    suspend fun getDeck(deckId: String): GetDeckResponse {
-        return try {
+    suspend fun getDeck(deckId: String): GetDeckResponse = withContext(Dispatchers.IO) {
+        try {
             Log.d("DeckRepository::getDeck", "deckId: $deckId")
             val deckEntity = deckDao.getOne(deckId)
             GetDeckResponse.Success(deckEntity)

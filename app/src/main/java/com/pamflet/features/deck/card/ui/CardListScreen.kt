@@ -1,5 +1,6 @@
 package com.pamflet.features.deck.card.ui
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -42,33 +43,45 @@ import com.pamflet.shared.ui.components.FullscreenLoadingSpinner
 import com.pamflet.shared.ui.theme.Gray50
 import com.pamflet.shared.ui.theme.Gray600
 import com.pamflet.shared.ui.theme.Gray900
+import com.pamflet.shared.viewmodel.DeleteDeckActionStatus
 
 @Composable
 fun CardListScreen(
-    cardListNavData: NavDestination.CardList,
     onNavigateBack: () -> Unit,
     onNavigateToAddCardScreen: (data: NavDestination.AddCard) -> Unit,
     onNavigateToEditCardScreen: (data: NavDestination.EditCard) -> Unit,
-    cardListViewModel: CardListViewModel
+    cardListViewModel: CardListViewModel,
+    onNavigateToEditDeckScreen: (data: NavDestination.EditDeck) -> Unit,
 ) {
+    val tag = "CardListScreen"
     val deckUiState = cardListViewModel.deckUiState
     val flashcardsUiState = cardListViewModel.flashcardsUiState
 
-    LaunchedEffect(cardListNavData.selectedDeckId) {
-        val deckId = cardListNavData.selectedDeckId
-        cardListViewModel.fetchDeck(deckId)
-        cardListViewModel.fetchFlashcards(deckId)
-    }
-
-    LaunchedEffect(cardListViewModel.deleteFlashcardActionStatus) {
-        if (cardListViewModel.deleteFlashcardActionStatus is DeleteFlashcardActionStatus.Success ||
-            cardListViewModel.deleteFlashcardActionStatus is DeleteFlashcardActionStatus.Success
-        ) {
-            cardListViewModel.resetDeleteFlashcardActionStatus()
+    LaunchedEffect(
+        cardListViewModel.deleteDeckActionStatuses[cardListViewModel.selectedDeckId]
+    ) {
+        val deleteDeckStatus =
+            cardListViewModel.deleteDeckActionStatuses[cardListViewModel.selectedDeckId]
+        Log.d(tag, "deleteDeckActionStatus: ${deleteDeckStatus}")
+        when (deleteDeckStatus) {
+            is DeleteDeckActionStatus.Success -> onNavigateBack()
+            else -> {}
         }
     }
 
-    Scaffold(topBar = { DeckEditTopAppBar(deckUiState, onNavigateBack) }) { contentPadding ->
+    Scaffold(topBar = {
+        DeckEditTopAppBar(
+            deckUiState,
+            onNavigateBack,
+            onNavigateToEditDeckScreen = {
+                val editDeckNavData =
+                    NavDestination.EditDeck(deckId = cardListViewModel.selectedDeckId)
+                onNavigateToEditDeckScreen(editDeckNavData)
+            },
+            onTriggerDeleteDeck = { cardListViewModel.triggerDeckDelete() },
+            isDeckDeleting = cardListViewModel.isDeletingDeckSubmitting()
+        )
+    }) { contentPadding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()

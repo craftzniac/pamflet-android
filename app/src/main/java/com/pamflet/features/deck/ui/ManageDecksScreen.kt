@@ -66,13 +66,6 @@ fun ManageDecksScreen(
     onNavigateToEditDeckScreen: (data: NavDestination.EditDeck) -> Unit,
 ) {
     val decksUiState by manageDecksViewModel.decksUiStateMutState
-    var selectedDeckForDelete by remember { mutableStateOf<Deck?>(null) }
-
-    fun closeDeckDeleteDialog() {
-        // close the dialog
-        selectedDeckForDelete = null
-    }
-
     Scaffold(
         topBar = { SimpleTopAppBar(title = "Manage Decks") }, bottomBar = bottomNavBar
     ) { paddingValues ->
@@ -81,35 +74,7 @@ fun ManageDecksScreen(
                 .padding(paddingValues)
                 .background(color = Gray50)
         ) {
-
-            LaunchedEffect(manageDecksViewModel.deleteDeckActionStatusMutState.value) {
-                when (manageDecksViewModel.deleteDeckActionStatusMutState.value) {
-                    DeleteDeckActionStatus.Success, is DeleteDeckActionStatus.Error -> {
-                        closeDeckDeleteDialog()
-                    }
-
-                    else -> {}
-                }
-            }
-
-            if (selectedDeckForDelete != null) {
-                CustomDialog(
-                    title = "Delete deck",
-                    description = "Are you sure you want to delete this deck?",
-                    isSubmitting = manageDecksViewModel.deleteDeckActionStatusMutState.value == DeleteDeckActionStatus.Submitting,
-                    onConfirm = {
-                        // trigger the delete
-                        selectedDeckForDelete?.let {
-                            Log.d("Composable::ManageDeckScreen", "deck: ${it}")
-                            manageDecksViewModel.deleteDeck(deck = it)
-                        }
-                    },
-                    onCancel = {
-                        selectedDeckForDelete = null
-                    })
-            }
-
-
+            // custom dialog used to be here
             when (decksUiState) {
                 is DecksUiState.Loading -> {
                     Box(
@@ -177,6 +142,8 @@ fun ManageDecksScreen(
                                     )
                                 ) {
                                     decks.forEach { deck ->
+                                        val isDeletingDeck =
+                                            manageDecksViewModel.isDeletingDeckSubmitting(deck.id)
                                         Card(
                                             shape = RoundedCornerShape(8.dp),
                                             colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -184,13 +151,15 @@ fun ManageDecksScreen(
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .clickable {
-                                                    val deckCardsListData =
-                                                        NavDestination.CardList(
-                                                            selectedDeckId = deck.id
+                                                    if (!isDeletingDeck) {
+                                                        val deckCardsListData =
+                                                            NavDestination.CardList(
+                                                                selectedDeckId = deck.id
+                                                            )
+                                                        onNavigateToDeckCardsListScreen(
+                                                            deckCardsListData
                                                         )
-                                                    onNavigateToDeckCardsListScreen(
-                                                        deckCardsListData
-                                                    )
+                                                    }
                                                 },
                                         ) {
                                             Row(
@@ -233,10 +202,7 @@ fun ManageDecksScreen(
                                                     ) {
                                                         DropdownMenuItem(onClick = {
                                                             onNavigateToEditDeckScreen(
-                                                                NavDestination.EditDeck(
-                                                                    deckId = deck.id,
-                                                                    deckName = deck.name
-                                                                )
+                                                                NavDestination.EditDeck(deckId = deck.id)
                                                             )
                                                             expanded = false
                                                         }, text = {
@@ -262,7 +228,9 @@ fun ManageDecksScreen(
                                                             }
                                                         })
                                                         DropdownMenuItem(onClick = {
-                                                            selectedDeckForDelete = deck
+                                                            manageDecksViewModel.triggerDeckDelete(
+                                                                deck.id
+                                                            )
                                                             expanded = false
                                                         }, text = {
                                                             Row(

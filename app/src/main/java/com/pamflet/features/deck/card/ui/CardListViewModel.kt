@@ -14,17 +14,13 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewModelScope
 import com.pamflet.core.data.repository.DeckRepository
 import com.pamflet.core.data.repository.DeleteFlashcardResponse
-import com.pamflet.core.data.repository.GetAllFlashcardsFromDeckResponse
 import com.pamflet.core.data.repository.GetDeckResponse
 import com.pamflet.core.domain.Deck
 import com.pamflet.core.domain.Flashcard
-import com.pamflet.shared.viewmodel.DeleteDeckActionStatus
 import com.pamflet.shared.viewmodel.SharedCardListViewModel
 import com.pamflet.shared.viewmodel.SharedDecksViewModel
 import com.pamflet.shared.viewmodel.SharedUiEventViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -84,7 +80,6 @@ class CardListViewModel(
 
     var deletingCardId by mutableStateOf<String?>(null)
         private set
-
     val selectedDeckId = cardListNavData.selectedDeckId
 
     var deleteFlashcardActionStatus by mutableStateOf<DeleteFlashcardActionStatus>(
@@ -170,7 +165,6 @@ class CardListViewModel(
 
     private suspend fun deleteCard(flashcardId: String) {
         deleteFlashcardActionStatus = DeleteFlashcardActionStatus.Submitting
-        delay(3000)
         val response = flashcardRepository.deleteOne(flashcardId)
         deleteFlashcardActionStatus = when (response) {
             is DeleteFlashcardResponse.Error -> {

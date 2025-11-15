@@ -1,22 +1,16 @@
 package com.pamflet.features.review.ui
 
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pamflet.core.data.repository.FlashcardRepository
 import com.pamflet.core.domain.Flashcard
 import com.pamflet.navigation.NavDestination
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModelProvider
 import com.pamflet.core.domain.GetAggregatedFlashcardResponse
 import com.pamflet.core.domain.GetAggregatedFlashcardsUseCase
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 
 class ReviewViewModelFactory(
@@ -66,9 +60,7 @@ class ReviewViewModel(
         val maxNumberOfCards = reviewNavData.maxNumberOfCards
         val isShuffled = reviewNavData.isShuffleCards
         if (deckIds.isNotEmpty()) {
-            _flashcardsUiState.value = FlashcardsUiState.Loading
             viewModelScope.launch {
-                delay(3000)
                 val response = withContext(Dispatchers.IO) {
                     getAggregatedFlashcardsUseCase(
                         deckIds,

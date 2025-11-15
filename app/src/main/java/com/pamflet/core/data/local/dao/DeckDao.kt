@@ -35,4 +35,7 @@ interface DeckDao {
 
     @Update
     suspend fun updateOne(deck: DeckEntity): UpdatedValuesCount
+
+    @Query("DELETE FROM deck_table")
+    suspend fun deleteAll()
 }

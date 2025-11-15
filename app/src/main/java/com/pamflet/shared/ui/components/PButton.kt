@@ -1,5 +1,6 @@
 package com.pamflet.shared.ui.components
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -22,7 +23,8 @@ import com.pamflet.shared.ui.theme.Purple500
 
 enum class PButtonVariant {
     Primary,
-    Secondary
+    Secondary,
+    Outline
 }
 
 @Composable
@@ -41,6 +43,28 @@ fun getVariantColors(variant: PButtonVariant): ButtonColors {
                 contentColor = Gray900
             )
         }
+
+        PButtonVariant.Outline -> {
+            ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = Gray900
+            )
+        }
+    }
+}
+
+@Composable
+fun Modifier.variantModifier(variant: PButtonVariant, colors: ButtonColors): Modifier {
+    return when (variant) {
+        PButtonVariant.Primary, PButtonVariant.Secondary -> {
+            this
+        }
+
+        PButtonVariant.Outline -> {
+            this.border(
+                width = 1.dp, shape = RoundedCornerShape(8.dp), color = colors.contentColor
+            )
+        }
     }
 }
 
@@ -51,12 +75,14 @@ fun PButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     variant: PButtonVariant = PButtonVariant.Primary,
+    colors: ButtonColors = getVariantColors(variant),
 ) {
     PButton(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
         variant = variant,
+        colors = colors
     ) {
         Text(text, fontSize = 16.sp)
     }
@@ -68,13 +94,15 @@ fun PButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     variant: PButtonVariant = PButtonVariant.Primary,
+    colors: ButtonColors = getVariantColors(variant),
     content: @Composable () -> Unit
 ) {
     Button(
         enabled = enabled,
-        colors = getVariantColors(variant),
+        colors = colors,
         modifier = modifier
-            .height(48.dp),
+            .height(48.dp)
+            .variantModifier(variant, colors),
         shape = RoundedCornerShape(8.dp),
         onClick = onClick,
     ) {

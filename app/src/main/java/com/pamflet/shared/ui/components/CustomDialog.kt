@@ -28,19 +28,21 @@ fun CustomDialog(
     description: String,
     onConfirm: () -> Unit,
     onCancel: () -> Unit,
-    isSubmitting: Boolean
+    isSubmitting: Boolean,
+    icon: (@Composable () -> Unit)? = null
 ) {
     AlertDialog(
         containerColor = Color.White,
-        icon = @Composable {
-            Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
-                Icon(
-                    imageVector = Icons.Default.Warning,
-                    contentDescription = "",
-                    modifier = Modifier.size(64.dp)
-                )
-            }
-        },
+        icon = icon
+            ?: @Composable {
+                Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
+                    Icon(
+                        imageVector = Icons.Default.Warning,
+                        contentDescription = "",
+                        modifier = Modifier.size(64.dp)
+                    )
+                }
+            },
         title = {
             Row(
                 horizontalArrangement = Arrangement.Start,

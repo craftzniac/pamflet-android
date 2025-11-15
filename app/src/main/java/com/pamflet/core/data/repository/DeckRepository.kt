@@ -7,6 +7,11 @@ import com.pamflet.core.data.local.entity.DeckEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+sealed class DeleteAllDecksResponse {
+    data class Error(val message: String) : DeleteAllDecksResponse()
+    data object Success : DeleteAllDecksResponse()
+}
+
 sealed class CreateDeckResponse {
     data class Success(val newDeckId: String) : CreateDeckResponse()
     data class Error(val message: String) : CreateDeckResponse()
@@ -75,13 +80,19 @@ class DeckRepository(
 
     suspend fun getDeck(deckId: String): GetDeckResponse = withContext(Dispatchers.IO) {
         try {
-            Log.d("DeckRepository::getDeck", "deckId: $deckId")
             val deckEntity = deckDao.getOne(deckId)
             GetDeckResponse.Success(deckEntity)
         } catch (ex: Exception) {
-            Log.d("DeckRepository::getDeck", "error: $ex")
             GetDeckResponse.Error(message = "Something went wrong, couldn't get deck")
         }
     }
 
+    suspend fun deleteAll(): DeleteAllDecksResponse = withContext(Dispatchers.IO) {
+        try {
+            deckDao.deleteAll()
+            DeleteAllDecksResponse.Success
+        } catch (ex: Exception) {
+            DeleteAllDecksResponse.Error("Couldn't delete all decks")
+        }
+    }
 }

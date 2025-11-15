@@ -1,7 +1,6 @@
 package com.pamflet.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -11,6 +10,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.createGraph
 import androidx.navigation.toRoute
 import com.pamflet.PamfletApplication
+import com.pamflet.core.domain.DeleteAllDecksUseCase
 import com.pamflet.core.domain.GetAggregatedFlashcardsUseCase
 import com.pamflet.features.auth.ui.LoginScreen
 import com.pamflet.features.auth.ui.SignupScreen
@@ -30,12 +30,14 @@ import com.pamflet.features.deck.ui.EditDeckViewModel
 import com.pamflet.features.deck.ui.EditDeckViewModelFactory
 import com.pamflet.features.deck.ui.ManageDecksScreen
 import com.pamflet.features.deck.ui.ManageDecksViewModelFactory
-import com.pamflet.features.profile.ui.ProfileScreen
+import com.pamflet.features.settings.ui.SettingsScreen
 import com.pamflet.features.review.ui.ReviewScreen
 import com.pamflet.features.review.ui.ReviewViewModel
 import com.pamflet.features.review.ui.ReviewViewModelFactory
 import com.pamflet.features.review.ui.SetupReviewScreen
 import com.pamflet.features.review.ui.SetupReviewViewModelFactory
+import com.pamflet.features.settings.ui.SettingsViewModel
+import com.pamflet.features.settings.ui.SettingsViewModelFactory
 import com.pamflet.shared.ui.components.BottomNavBar
 import com.pamflet.shared.viewmodel.SharedCardListViewModel
 import com.pamflet.shared.viewmodel.SharedDecksViewModel
@@ -52,8 +54,8 @@ fun AppNavigation(
     val currentSelectedRoute =
         navController.currentBackStackEntryAsState().value?.destination?.route
 
-    val onNavigateToProfileScreen = {
-        navController.navigate(route = NavDestination.Profile)
+    val onNavigateToSettingsScreen = {
+        navController.navigate(route = NavDestination.Settings)
     }
 
     val onNavigateToCardsSlideSetupScreen = {
@@ -68,7 +70,7 @@ fun AppNavigation(
         BottomNavBar(
             onNavigateToCardsSlideSetupScreen,
             onNavigateToManageDecksScreen,
-            onNavigateToProfileScreen,
+            onNavigateToSettingsScreen,
             currentSelectedRoute
         )
     }
@@ -265,7 +267,22 @@ fun AppNavigation(
 
 
             // Start user profile management
-            composable<NavDestination.Profile> { ProfileScreen(bottomNavBar) }
+            composable<NavDestination.Settings> {
+                val settingsViewModel: SettingsViewModel = viewModel(
+                    factory = SettingsViewModelFactory(
+                        deleteAllDecksUseCase = DeleteAllDecksUseCase(
+                            app.deckRepository,
+                            app.flashcardRepository
+                        ),
+                        sharedUiEventViewModel,
+                        refetchDecks = { sharedDecksViewModel.refetchDecks() }
+                    )
+                )
+                SettingsScreen(
+                    settingsViewModel,
+                    bottomNavBar
+                )
+            }
             // End user profile management
         }
     }

@@ -11,6 +11,11 @@ sealed class DeleteAllFromDeckResponse {
     data object Success : DeleteAllFromDeckResponse()
 }
 
+sealed class DeleteAllFlashcardsResponse {
+    data class Error(val message: String) : DeleteAllFlashcardsResponse()
+    data object Success : DeleteAllFlashcardsResponse()
+}
+
 sealed class GetAllFlashcardsFromDeckResponse {
     data class Error(val message: String) : GetAllFlashcardsFromDeckResponse()
     data class Success(val flashcards: List<FlashcardEntity>) : GetAllFlashcardsFromDeckResponse()
@@ -94,14 +99,14 @@ class FlashcardRepository(
             }
         }
 
-    suspend fun deleteOneOrMore(flashcardIds: List<String>) = withContext(Dispatchers.IO) {
-        try {
-            flashcardDao.deleteOneOrMore(ids = flashcardIds)
-            DeleteFlashcardResponse.Success
-        } catch (ex: Exception) {
-            DeleteFlashcardResponse.Error("Couldn't delete flashcards")
-        }
-    }
+//    suspend fun deleteOneOrMore(flashcardIds: List<String>) = withContext(Dispatchers.IO) {
+//        try {
+//            flashcardDao.deleteOneOrMore(ids = flashcardIds)
+//            DeleteFlashcardResponse.Success
+//        } catch (ex: Exception) {
+//            DeleteFlashcardResponse.Error("Couldn't delete flashcards")
+//        }
+//    }
 
     suspend fun deleteOne(flashcardId: String) = withContext(Dispatchers.IO) {
         try {
@@ -112,4 +117,12 @@ class FlashcardRepository(
         }
     }
 
+    suspend fun deleteAll() = withContext(Dispatchers.IO) {
+        try {
+            flashcardDao.deleteAll()
+            DeleteAllFlashcardsResponse.Success
+        } catch (ex: Exception) {
+            DeleteAllFlashcardsResponse.Error("Couldn't delete all flashcards")
+        }
+    }
 }

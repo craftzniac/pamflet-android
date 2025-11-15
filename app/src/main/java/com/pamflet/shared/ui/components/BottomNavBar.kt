@@ -35,34 +35,38 @@ data class NavBarItem(
 fun BottomNavBar(
     onNavigateToCardsSlideSetupScreen: () -> Unit,
     onNavigateToManageDecksScreen: () -> Unit,
-    onNavigateToProfileScreen: () -> Unit,
+    onNavigateToSettingsScreen: () -> Unit,
     currentSelectedRoute: String?
 ) {
     val navbarItems = listOf(
         NavBarItem(
-            route = NavDestination.SetupReview, icon = @Composable {
+            route = NavDestination.SetupReview,
+            icon = @Composable { isSelected ->
+                Icon(
+                    painter = painterResource(id = R.drawable.nav_bookopen),
+                    contentDescription = "",
+                    modifier = Modifier.size(24.dp),
+                    tint = if (isSelected) Purple500 else Gray900
+                )
+            },
+            label = "Cards Review", onClick = onNavigateToCardsSlideSetupScreen
+        ),
+        NavBarItem(
+            route = NavDestination.ManageDecks,
+            icon = @Composable {
                 Box(modifier = Modifier.size(24.dp)) { Logo() }
-            }, label = "Cards Review", onClick = onNavigateToCardsSlideSetupScreen
+            },
+            label = "Manage Decks", onClick = onNavigateToManageDecksScreen
         ),
         NavBarItem(
-            route = NavDestination.ManageDecks, icon = @Composable { isSelected ->
+            route = NavDestination.Settings, icon = @Composable { isSelected ->
                 Icon(
-                    painter = painterResource(id = R.drawable.nav_scroll),
+                    painter = painterResource(id = R.drawable.nav_settings),
                     contentDescription = "",
                     modifier = Modifier.size(24.dp),
                     tint = if (isSelected) Purple500 else Gray900
                 )
-            }, label = "Manage Decks", onClick = onNavigateToManageDecksScreen
-        ),
-        NavBarItem(
-            route = NavDestination.Profile, icon = @Composable { isSelected ->
-                Icon(
-                    painter = painterResource(id = R.drawable.nav_profile),
-                    contentDescription = "",
-                    modifier = Modifier.size(24.dp),
-                    tint = if (isSelected) Purple500 else Gray900
-                )
-            }, label = "Profile", onClick = onNavigateToProfileScreen
+            }, label = "Settings", onClick = onNavigateToSettingsScreen
         ),
     )
 

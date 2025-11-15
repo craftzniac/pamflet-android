@@ -58,7 +58,7 @@ sealed class NavDestination : Routable {
     }
 
     @Serializable
-    data object Profile : NavDestination() {
+    data object Settings : NavDestination() {
         override val serialName: String
             get() = serializer().descriptor.serialName
     }

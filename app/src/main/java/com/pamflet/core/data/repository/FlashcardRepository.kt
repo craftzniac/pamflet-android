@@ -37,7 +37,6 @@ sealed class DeleteFlashcardResponse {
     data object Success : DeleteFlashcardResponse()
 }
 
-
 class FlashcardRepository(
     private val flashcardDao: FlashcardDao
 ) {

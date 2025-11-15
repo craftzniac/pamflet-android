@@ -42,7 +42,7 @@ fun BottomNavBar(
         NavBarItem(
             route = NavDestination.SetupReview, icon = @Composable {
                 Box(modifier = Modifier.size(24.dp)) { Logo() }
-            }, label = "Cards Slide", onClick = onNavigateToCardsSlideSetupScreen
+            }, label = "Cards Review", onClick = onNavigateToCardsSlideSetupScreen
         ),
         NavBarItem(
             route = NavDestination.ManageDecks, icon = @Composable { isSelected ->

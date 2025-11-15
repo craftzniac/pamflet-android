@@ -55,12 +55,10 @@ fun SetupReviewScreen(
     onNavigateToReviewScreen: (data: NavDestination.Review) -> Unit
 ) {
     Scaffold(
-        topBar = { SimpleTopAppBar(title = "Card Slide Setup", isShowPamfletLogo = true) },
+        topBar = { SimpleTopAppBar(title = "Setup Cards Review", isShowPamfletLogo = true) },
         bottomBar = bottomNavBar
     ) { paddingValues ->
         val decksUiState by setupReviewViewModel.decksUiStateMutState
-        val maxNumberOfCardsMutState = remember { mutableIntStateOf(100) }
-        val isShuffleCardsMutState = remember { mutableStateOf(false) }
         val isShuffleCards = setupReviewViewModel.isShuffleCards
         val selectedDeckIds = setupReviewViewModel.selectedDeckIds
         val maxNumberOfCards = setupReviewViewModel.maxNumberOfCards
@@ -202,13 +200,12 @@ fun SetupReviewScreen(
                     Button(
                         enabled = selectedDeckIds.isNotEmpty(),
                         onClick = {
-                            (
-                                NavDestination.Review(
-                                    maxNumberOfCards = maxNumberOfCards,
-                                    isShuffleCards = isShuffleCards,
-                                    selectedDeckIds = selectedDeckIds
-                                )
+                            val navData = NavDestination.Review(
+                                maxNumberOfCards = maxNumberOfCards,
+                                isShuffleCards = isShuffleCards,
+                                selectedDeckIds = selectedDeckIds
                             )
+                            onNavigateToReviewScreen(navData)
                         },
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.height(48.dp)

@@ -11,6 +11,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.createGraph
 import androidx.navigation.toRoute
 import com.pamflet.PamfletApplication
+import com.pamflet.core.domain.GetAggregatedFlashcardsUseCase
 import com.pamflet.features.auth.ui.LoginScreen
 import com.pamflet.features.auth.ui.SignupScreen
 import com.pamflet.features.deck.card.ui.AddCardScreen
@@ -31,6 +32,8 @@ import com.pamflet.features.deck.ui.ManageDecksScreen
 import com.pamflet.features.deck.ui.ManageDecksViewModelFactory
 import com.pamflet.features.profile.ui.ProfileScreen
 import com.pamflet.features.review.ui.ReviewScreen
+import com.pamflet.features.review.ui.ReviewViewModel
+import com.pamflet.features.review.ui.ReviewViewModelFactory
 import com.pamflet.features.review.ui.SetupReviewScreen
 import com.pamflet.features.review.ui.SetupReviewViewModelFactory
 import com.pamflet.shared.ui.components.BottomNavBar
@@ -141,8 +144,14 @@ fun AppNavigation(
             }
             composable<NavDestination.Review> { backStackEntry ->
                 val reviewNavData: NavDestination.Review = backStackEntry.toRoute()
+                val reviewViewModel: ReviewViewModel = viewModel(
+                    factory = ReviewViewModelFactory(
+                        reviewNavData,
+                        GetAggregatedFlashcardsUseCase(app.flashcardRepository)
+                    )
+                )
                 ReviewScreen(
-                    reviewNavData, onNavigateBack, onNavigateToEditCardScreen
+                    reviewViewModel, onNavigateBack, onNavigateToEditCardScreen
                 )
             }
             // End flashcard usage features

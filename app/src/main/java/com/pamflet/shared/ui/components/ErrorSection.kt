@@ -3,6 +3,7 @@ package com.pamflet.shared.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pamflet.shared.ui.theme.Gray600
+import com.pamflet.shared.ui.theme.Gray700
 import com.pamflet.shared.ui.theme.Gray900
 
 @Composable
@@ -42,23 +44,31 @@ fun ErrorSection(
             .padding(8.dp)
             .then(fullscreenModifier)
             .then(modifier),
-        verticalArrangement = Arrangement.spacedBy(4.dp, alignment = Alignment.CenterVertically),
+        verticalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            message,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Medium,
-            color = Gray900,
-            textAlign = TextAlign.Center
-        )
-        Text(
-            detail,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            color = Gray600,
-            textAlign = TextAlign.Center
-        )
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                message,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium,
+                color = Gray700,
+                textAlign = TextAlign.Center
+            )
+            if (detail.isNotEmpty()) {
+                Text(
+                    detail,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Gray600,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
         Button(
             onClick = onAction,
             shape = RoundedCornerShape(8.dp),

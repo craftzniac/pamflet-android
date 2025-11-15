@@ -33,77 +33,26 @@ import androidx.compose.ui.unit.dp
 import com.pamflet.shared.ui.components.PreviewCard
 import com.pamflet.navigation.NavDestination
 import com.pamflet.R
-import com.pamflet.core.domain.DeckWithCards
-import com.pamflet.core.domain.Flashcard
 import com.pamflet.shared.ui.components.FlashcardFlipButton
-import com.pamflet.shared.ui.components.TopAppBarTitleDescriptionText
 import com.pamflet.shared.ui.components.topAppBarTitleTextStyle
 import com.pamflet.shared.ui.theme.Gray50
-import java.util.UUID
-
-
-val dummyCards = listOf(
-    Flashcard(
-        id = UUID.randomUUID().toString(),
-        front = "something",
-        back = "nothing",
-        deckId = ""
-    ),
-    Flashcard(
-        id = UUID.randomUUID().toString(),
-        front = "Somebody name",
-        back = "Another thing to note",
-        deckId = ""
-    ),
-)
-
-val dummyDecksWithCards = listOf(
-    DeckWithCards(
-        id = UUID.randomUUID().toString(),
-        name = "Language design fundentals",
-        cards = dummyCards
-    ),
-    DeckWithCards(
-        id = UUID.randomUUID().toString(),
-        name = "c programming",
-        cards = dummyCards
-    ),
-    DeckWithCards(
-        id = UUID.randomUUID().toString(),
-        name = "nature of code",
-        cards = dummyCards
-    ),
-    DeckWithCards(
-        id = UUID.randomUUID().toString(),
-        name = "humane software design",
-        cards = dummyCards
-    ),
-    DeckWithCards(
-        id = UUID.randomUUID().toString(),
-        name = "anatomy",
-        cards = dummyCards
-    )
-)
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.sp
+import com.pamflet.shared.ui.components.ErrorSection
+import com.pamflet.shared.ui.components.FullscreenLoadingSpinner
+import com.pamflet.shared.ui.components.PButton
+import com.pamflet.shared.ui.components.PButtonVariant
+import com.pamflet.shared.ui.theme.Gray600
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReviewScreen(
-    reviewNavData: NavDestination.Review,
+    reviewViewModel: ReviewViewModel,
     onNavigateBack: () -> Unit,
     onNavigateToEditCardScreen: (data: NavDestination.EditCard) -> Unit
 ) {
-    val decks = dummyDecksWithCards
-    val decknames = decks.map { it.name }
-    val cards = decks[0].cards
-    val isFlippedMutState = remember { mutableStateOf(false) }
-    val pagerState = rememberPagerState(pageCount = { cards.size })
-    val selectedFlashcardMutState = remember { mutableStateOf(cards[pagerState.currentPage]) }
-
-    LaunchedEffect(pagerState.currentPage) {
-        selectedFlashcardMutState.value = cards[pagerState.currentPage]
-        isFlippedMutState.value = false
-    }
-
+    val flashCardsUiState by reviewViewModel.flashcardsUiState
     Scaffold(
         topBar = {
             TopAppBar(
@@ -114,10 +63,10 @@ fun ReviewScreen(
                         verticalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = "Card Slide",
+                            text = "Cards Review",
                             style = topAppBarTitleTextStyle
                         )
-                        TopAppBarTitleDescriptionText(text = decknames.joinToString(separator = ", "))
+//                        TopAppBarTitleDescriptionText(text = decknames.joinToString(separator = ", "))
                     }
                 },
                 navigationIcon = {
@@ -135,73 +84,129 @@ fun ReviewScreen(
         Box(
             modifier = Modifier
                 .padding(paddingValues)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .background(color = Gray50),
             contentAlignment = Alignment.Center,
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = Gray50),
-                verticalArrangement = Arrangement.spacedBy(
-                    2.dp,
-                    alignment = Alignment.CenterVertically
-                )
-            ) {
-                item {
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        Row(
-                            horizontalArrangement = Arrangement.End,
+            when (flashCardsUiState) {
+                is FlashcardsUiState.Loading -> {
+                    FullscreenLoadingSpinner()
+                }
+
+                is FlashcardsUiState.Error -> {
+                    ErrorSection(
+                        message = (flashCardsUiState as FlashcardsUiState.Error).message,
+                        onAction = { reviewViewModel.retryFetchFlashcards() }
+                    )
+                }
+
+                is FlashcardsUiState.Success -> {
+                    val cards = (flashCardsUiState as FlashcardsUiState.Success).flashcards
+                    if (cards.isEmpty()) {
+                        ReviewScreenEmpty(onNavigateBack)
+                    } else {
+                        val pagerState = rememberPagerState(pageCount = { cards.size })
+                        val selectedFlashcardMutState =
+                            remember { mutableStateOf(cards[pagerState.currentPage]) }
+
+                        LaunchedEffect(pagerState.currentPage) {
+                            selectedFlashcardMutState.value = cards[pagerState.currentPage]
+                            reviewViewModel.updateIsFlipped(false)
+                        }
+
+                        LazyColumn(
                             modifier = Modifier
-                                .widthIn(max = 300.dp)
-                                .fillMaxWidth()
+                                .fillMaxSize()
+                                .background(color = Color.Transparent),
+                            verticalArrangement = Arrangement.spacedBy(
+                                2.dp,
+                                alignment = Alignment.CenterVertically
+                            )
                         ) {
-                            IconButton(onClick = {
-                                val data =
-                                    NavDestination.EditCard(
-                                        selectedCardId = selectedFlashcardMutState.value.id,
-                                        deckId = selectedFlashcardMutState.value.deckId
-                                    )
-                                onNavigateToEditCardScreen(data)
-                            }) {
-                                Icon(
-                                    painter = painterResource(R.drawable.pencil),
-                                    contentDescription = ""
-                                )
+                            item {
+                                Box(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Row(
+                                        horizontalArrangement = Arrangement.End,
+                                        modifier = Modifier
+                                            .widthIn(max = 300.dp)
+                                            .fillMaxWidth()
+                                    ) {
+                                        IconButton(onClick = {
+                                            val data =
+                                                NavDestination.EditCard(
+                                                    selectedCardId = selectedFlashcardMutState.value.id,
+                                                    deckId = selectedFlashcardMutState.value.deckId
+                                                )
+                                            onNavigateToEditCardScreen(data)
+                                        }) {
+                                            Icon(
+                                                painter = painterResource(R.drawable.pencil),
+                                                contentDescription = ""
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                            item {
+                                HorizontalPager(
+                                    state = pagerState,
+                                    pageSpacing = 8.dp,
+                                    contentPadding = PaddingValues(horizontal = 20.dp)
+                                ) { page ->
+                                    Column(
+                                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        val card = cards[page]
+                                        PreviewCard(
+                                            cardFrontContent = card.front,
+                                            cardBackContent = card.back,
+                                            isFlipped = if (page == pagerState.currentPage) reviewViewModel.isFlippedState.value else false
+                                        )
+                                    }
+                                }
+                            }
+                            item {
+                                Row(
+                                    modifier = Modifier
+                                        .padding(horizontal = 0.dp, vertical = 8.dp)
+                                        .fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    FlashcardFlipButton(onClick = {
+                                        reviewViewModel.toggleIsFlipped()
+                                    })
+                                }
                             }
                         }
-                    }
-                }
-                item {
-                    HorizontalPager(
-                        state = pagerState,
-                        pageSpacing = 8.dp,
-                        contentPadding = PaddingValues(horizontal = 20.dp)
-                    ) { page ->
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(2.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            val card = cards[page]
-                            PreviewCard(
-                                cardFrontContent = card.front,
-                                cardBackContent = card.back,
-                                isFlipped = if (page == pagerState.currentPage) isFlippedMutState.value else false
-                            )
-                        }
-                    }
-                }
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        FlashcardFlipButton(onClick = {
-                            isFlippedMutState.value = !isFlippedMutState.value
-                        })
+
                     }
                 }
             }
+
         }
+    }
+}
+
+@Composable
+fun ReviewScreenEmpty(onNavigateBack: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.Transparent),
+        verticalArrangement = Arrangement.spacedBy(
+            16.dp, alignment = Alignment.CenterVertically
+        ),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        ErrorSection(
+            message = "Specified deck(s) are empty",
+            onAction = onNavigateBack,
+            actionLabel = "Go back"
+        )
     }
 }

@@ -17,8 +17,8 @@ Pamflet is a flashcard app that lets you create and study cards in a more engagi
 [figma designs](https://www.figma.com/design/kgp32haxGJSxzSLAMUYO8Z/pamflet)
 
 ## Download android apk
-![Download](https://github.com/craftzniac/pamflet-android/releases/download/v1.0/pamflet_v1.0.apk)
-Note: Device must be running Android 7.0 or higher
+Note: Only supports Android 7.0 or higher
+[Download latest APK](https://github.com/craftzniac/pamflet-android/releases/download/v1.0/pamflet_v1.0.apk)
 
 ## How to run locally
 For anyone who would like to run this app locally from source; 

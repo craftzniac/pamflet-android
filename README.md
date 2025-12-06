@@ -4,6 +4,12 @@ Pamflet is a flashcard app that lets you create and study cards in a more engagi
 - Multiple-choice elements that let learners actively select answers and test their knowledge.
 - Include links for additional resources
 
+## Screenshots
+![1](./screenshots/1.png)
+![2](./screenshots/2.png)
+![3](./screenshots/3.png)
+![4](./screenshots/4.png)
+
 ## Demo
 ![demo](./pamflet_android.mp4)
 

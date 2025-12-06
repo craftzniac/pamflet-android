@@ -5,7 +5,7 @@ Pamflet is a flashcard app that lets you create and study cards in a more engagi
 - Include links for additional resources
 
 ## Demo
-[demo](./pamflet_android.mp4)
+![demo](./pamflet_android.mp4)
 
 ## Design files
 [figma designs](https://www.figma.com/design/kgp32haxGJSxzSLAMUYO8Z/pamflet)
